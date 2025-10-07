@@ -39,15 +39,11 @@ fn parse_file<P: AsRef<Path>>(filename: P) -> Result<Vec<String>, std::io::Error
 
 pub struct Lang {
     graph: Option<FrozenSyntaxGraph>,
-    nodes: usize,
 }
 
 impl Lang {
     pub fn new() -> Self {
-        Lang {
-            graph: None,
-            nodes: 0,
-        }
+        Lang { graph: None }
     }
 
     pub fn get_graph(&self) -> Option<&FrozenSyntaxGraph> {

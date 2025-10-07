@@ -24,14 +24,14 @@ impl PRNG {
         self.number = var;
         self.seed = var;
     }
-    pub fn next_PRN(&mut self) -> u64 {
+    pub fn next_prn(&mut self) -> u64 {
         self.number ^= self.number << 13;
         self.number ^= self.number >> 7;
         self.number ^= self.number << 17;
         return self.number;
     }
     pub fn random(&mut self) -> f64 {
-        let var = (self.next_PRN() >> 11) as f64;
+        let var = (self.next_prn() >> 11) as f64;
         var / ((1u64 << 53) - 1) as f64 // Divide by (2^53 - 1) to get [0, 1]
     }
     pub fn random_int(&mut self, min: i32, max: i32) -> i32 {

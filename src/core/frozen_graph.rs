@@ -18,17 +18,9 @@ pub struct FrozenSyntaxNode {
 }
 
 pub struct FrozenSyntaxEdge {
-    pub probability: f32,
     pub node: Arc<FrozenSyntaxNode>,
 }
 impl FrozenSyntaxGraph {
-    fn fetch_node(&self, id: u32) -> Result<Arc<FrozenSyntaxNode>, &str> {
-        if let Some(node) = self.node_ref.get(&id) {
-            Ok(Arc::clone(node))
-        } else {
-            Err("Node not found in graph")
-        }
-    }
     pub fn walk_graph(&self, mut prng: PRNG, start: String, tokens: usize) -> Result<String, &str> {
         let mut result = String::from("");
         let mut graph_stack: Vec<u32> = vec![];

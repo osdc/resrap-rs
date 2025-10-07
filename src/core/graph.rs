@@ -69,22 +69,22 @@ impl SyntaxGraph {
             let mut node_guard = node.lock().unwrap();
 
             // Collect probabilities
-            let mut CF: Vec<f32> = vec![];
+            let mut mcf: Vec<f32> = vec![];
             let mut cf: f32 = 0.0;
             let mut sum: f32 = 0.0;
             for edge in &node_guard.options {
-                CF.push(edge.probability);
+                mcf.push(edge.probability);
                 sum += edge.probability;
             }
 
             // Build cumulative frequency
-            for i in 0..CF.len() {
-                CF[i] = cf + CF[i] / sum;
-                cf = CF[i];
+            for i in 0..mcf.len() {
+                mcf[i] = cf + mcf[i] / sum;
+                cf = mcf[i];
             }
 
-            node_guard.cumulative_frequency = CF;
-            //Now we have a cool little CF Array Normalized to 1
+            node_guard.cumulative_frequency = mcf;
+            //Now we have a cool little mcf Array Normalized to 1
             // When picking random values, we pick one between 0 and 1
             // And then choose its closest value from the array
             // For probability based selection
@@ -121,7 +121,6 @@ impl SyntaxGraph {
                 .map(|edge| {
                     let target_node = frozen_nodes.get(&edge.node.lock().unwrap().id).unwrap();
                     FrozenSyntaxEdge {
-                        probability: edge.probability,
                         node: Arc::clone(target_node),
                     }
                 })
@@ -152,36 +151,4 @@ impl SyntaxNode {
     pub fn add_edge(&mut self, node: Arc<Mutex<SyntaxNode>>, probability: f32) {
         self.options.push(SyntaxEdge { probability, node });
     }
-}
-// Helper function to handle escape sequences
-fn unescape_string(s: &str) -> String {
-    let mut result = String::with_capacity(s.len());
-    let mut chars = s.chars();
-
-    while let Some(ch) = chars.next() {
-        if ch == '\\' {
-            if let Some(next_ch) = chars.next() {
-                match next_ch {
-                    'n' => result.push('\n'),
-                    't' => result.push('\t'),
-                    'r' => result.push('\r'),
-                    '\\' => result.push('\\'),
-                    '\'' => result.push('\''),
-                    '"' => result.push('"'),
-                    _ => {
-                        // If it's not a recognized escape sequence, keep the backslash
-                        result.push('\\');
-                        result.push(next_ch);
-                    }
-                }
-            } else {
-                // Trailing backslash
-                result.push('\\');
-            }
-        } else {
-            result.push(ch);
-        }
-    }
-
-    result
 }

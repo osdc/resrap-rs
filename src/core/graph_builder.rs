@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use crate::core::{
-    frozen_graph::FrozenSyntaxGraph,
-    parser::Parser,
-    regex::Regexer,
-    scanner::{Scanner, Token},
+    frozen_graph::FrozenSyntaxGraph, parser::Parser, regex::Regexer, scanner::Scanner,
 };
 
 pub struct GraphBuilder {

@@ -17,35 +17,31 @@ pub enum TokenType {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub pos: usize,
     pub typ: TokenType,
     pub text: String,
 }
 
 impl Token {
-    fn new(pos: usize, typ: TokenType, text: String) -> Self {
-        Token { pos, typ, text }
+    fn new(_: usize, typ: TokenType, text: String) -> Self {
+        Token { typ, text }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct ScanError {
-    pub pos: usize,
-    pub msg: String,
+    _msg: String,
 }
 
 impl ScanError {
-    fn new(pos: usize, msg: String) -> Self {
-        ScanError { pos, msg }
+    fn new(msg: String) -> Self {
+        ScanError { _msg: msg }
     }
 }
 
 pub struct Scanner {
-    input: String,
     pos: usize,   // current byte offset
     width: usize, // width of last char in bytes
     curr_r: char, // current rune/char
-    lineno: usize,
     tokens: Vec<Token>,
     chars: Vec<char>, // cached char array for easier iteration
 }
@@ -54,11 +50,9 @@ impl Scanner {
     pub fn new(input: String) -> Self {
         let chars: Vec<char> = input.chars().collect();
         Scanner {
-            input,
             pos: 0,
             width: 0,
             curr_r: '\0',
-            lineno: 0,
             tokens: Vec::new(),
             chars,
         }
@@ -87,31 +81,18 @@ impl Scanner {
         Some(self.chars[self.pos])
     }
 
-    // go back one char
-    fn backup(&mut self) {
-        if self.width > 0 {
-            self.pos -= self.width;
-        }
-    }
-
-    // return the current char (last consumed by next)
-    fn curr(&self) -> char {
-        self.curr_r
-    }
-
     fn scan_delimited(
         &mut self,
         open: char,
         close: char,
         _allow_escapes: bool,
     ) -> Result<String, ScanError> {
-        let start = self.pos;
         let mut buf = String::new();
 
         loop {
             match self.next() {
                 None => {
-                    return Err(ScanError::new(start, format!("unterminated '{}'", open)));
+                    return Err(ScanError::new(format!("unterminated '{}'", open)));
                 }
                 Some(r) => {
                     if r == close {
@@ -259,10 +240,4 @@ fn is_ident_start(r: char) -> bool {
 
 fn is_ident_part(r: char) -> bool {
     is_alpha(r) || is_digit(r) || r == '_'
-}
-
-// Public API function
-pub fn extract_tokens(inp: &str) -> (Vec<Token>, Vec<ScanError>) {
-    let scanner = Scanner::new(inp.to_string());
-    scanner.scan()
 }
