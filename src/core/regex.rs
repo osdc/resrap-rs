@@ -9,20 +9,17 @@ struct CacheRexState {
 }
 
 #[derive(Debug)]
-struct Regexer {
+pub struct Regexer {
     cached_rex: HashMap<String, CacheRexState>,
 }
 
 impl Regexer {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Regexer {
             cached_rex: HashMap::new(),
         }
     }
-}
-
-impl Regexer {
-    fn generate_string(&self, regex: &str, prn: &mut PRNG) -> String {
+    pub fn generate_string(&self, regex: &str, prn: &mut PRNG) -> String {
         let size = prn.random_int(3, 4); // generate size between 3 and 4 (you can adjust for 3-7)
         let mut result = String::with_capacity(size as usize);
 
@@ -56,6 +53,33 @@ impl Regexer {
         }
 
         chars
+    }
+
+    pub fn cache_regex(&mut self, regex: &str) {
+        let tokens = self.expand_class(regex);
+        let mut bias_arr: Vec<f32> = Vec::with_capacity(tokens.len());
+        let mut sum: f32 = 0.0;
+        for token in &tokens {
+            let bias = self.bias(token.clone()) as f32;
+            bias_arr.push(bias);
+            sum += bias;
+        }
+        for b in &mut bias_arr {
+            *b /= sum;
+        }
+        let mut cdf: Vec<f32> = Vec::with_capacity(bias_arr.len());
+        let mut cum = 0.0;
+        for &w in &bias_arr {
+            cum += w;
+            cdf.push(cum);
+        }
+        self.cached_rex.insert(
+            regex.to_string(),
+            CacheRexState {
+                cumu_freq: cdf,
+                options: tokens,
+            },
+        );
     }
     fn bias(&self, r: char) -> i32 {
         let r_lower = r.to_ascii_lowercase();
