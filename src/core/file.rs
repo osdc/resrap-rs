@@ -54,10 +54,6 @@ impl Lang {
         self.graph.as_ref()
     }
 
-    pub fn get_graph_mut(&mut self) -> Option<&mut FrozenSyntaxGraph> {
-        self.graph.as_mut()
-    }
-
     pub fn parse_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<(), String> {
         let lines = parse_file(filename).map_err(|e| format!("Failed to read file: {}", e))?;
 

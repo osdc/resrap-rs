@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     OneOrMore,   // +
@@ -243,12 +241,6 @@ impl Scanner {
         }
 
         (self.tokens, errs)
-    }
-
-    pub fn print_tokens(&self) {
-        for token in &self.tokens {
-            println!("{}", token.text);
-        }
     }
 }
 

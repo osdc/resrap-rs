@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Pointer, sync::Arc, thread::JoinHandle};
+use std::{collections::HashMap, sync::Arc};
 
 use crate::core::{graph::NodeType, prng::PRNG, regex::Regexer};
 
@@ -32,18 +32,26 @@ impl FrozenSyntaxGraph {
     pub fn walk_graph(&self, mut prng: PRNG, start: String, tokens: usize) -> Result<String, &str> {
         let mut result = String::from("");
         let mut graph_stack: Vec<u32> = vec![];
+
         if let Some(start_id) = self.name_map.get(&start) {
-            let starting_node = self.fetch_node(*start_id)?;
             let mut printed_tokens: usize = 0;
-            let mut current = starting_node;
+            let mut current_id = *start_id;
+
             loop {
+                // Always fetch fresh from node_ref
+                let current = self
+                    .node_ref
+                    .get(&current_id)
+                    .ok_or("Node not found in graph")?;
+
                 if printed_tokens >= tokens {
                     return Ok(result);
                 }
+
                 match current.typ {
                     NodeType::CH => {
                         if let Some(content) = self.print_map.get(&current.id) {
-                            result.push_str(content);
+                            result.push_str(&unescape_string(&content));
                             printed_tokens += 1;
                         }
                     }
@@ -55,24 +63,28 @@ impl FrozenSyntaxGraph {
                         }
                     }
                     NodeType::POINTER => {
-                        if let Some(ret_node) = current.options.get(0) {
+                        if let Some(ret_node) = current.options.first() {
                             graph_stack.push(ret_node.node.id);
-                            current = self.fetch_node(current.pointer).unwrap()
+                            current_id = current.pointer;
                         }
+                        continue;
                     }
                     NodeType::END => {
                         if graph_stack.is_empty() {
                             return Ok(result);
                         } else {
                             let ret_node = graph_stack.pop().unwrap();
-                            current = self.fetch_node(ret_node).unwrap();
+                            current_id = ret_node;
                         }
+                        continue;
                     }
                     _ => {}
                 }
+
                 if current.options.is_empty() {
                     return Ok(result);
                 }
+
                 let value = prng.random() as f32;
                 let index = match current
                     .cumulative_frequency
@@ -80,12 +92,45 @@ impl FrozenSyntaxGraph {
                     .position(|&x| x >= value)
                 {
                     Some(i) => i,
-                    None => current.cumulative_frequency.len() - 1, // fallback: pick last edge
+                    None => current.cumulative_frequency.len() - 1,
                 };
-                current = Arc::clone(&current.options[index].node);
+
+                current_id = current.options[index].node.id;
             }
         } else {
             Err("Could not find starting node")
         }
     }
+}
+// Helper function to handle escape sequences
+fn unescape_string(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut chars = s.chars();
+
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            if let Some(next_ch) = chars.next() {
+                match next_ch {
+                    'n' => result.push('\n'),
+                    't' => result.push('\t'),
+                    'r' => result.push('\r'),
+                    '\\' => result.push('\\'),
+                    '\'' => result.push('\''),
+                    '"' => result.push('"'),
+                    _ => {
+                        // If it's not a recognized escape sequence, keep the backslash
+                        result.push('\\');
+                        result.push(next_ch);
+                    }
+                }
+            } else {
+                // Trailing backslash
+                result.push('\\');
+            }
+        } else {
+            result.push(ch);
+        }
+    }
+
+    result
 }

@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use crate::core::prng::PRNG;
 
 #[derive(Debug, Clone)]
-struct CacheRexState {
+pub struct CacheRexState {
     cumu_freq: Vec<f32>,
     options: Vec<char>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Regexer {
-    cached_rex: HashMap<String, CacheRexState>,
+    pub cached_rex: HashMap<String, CacheRexState>,
 }
 
 impl Regexer {
@@ -26,6 +26,7 @@ impl Regexer {
         if let Some(state) = self.cached_rex.get(regex) {
             for _ in 0..size {
                 let x = prn.random(); // float 0-1
+
                 let idx = closest_index(&state.cumu_freq, x as f32);
                 result.push(state.options[idx]);
             }
@@ -51,7 +52,6 @@ impl Regexer {
                 i += 1;
             }
         }
-
         chars
     }
 

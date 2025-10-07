@@ -31,8 +31,8 @@ impl PRNG {
         return self.number;
     }
     pub fn random(&mut self) -> f64 {
-        let var = (self.next_PRN() << 11) as f64; //Top 53 bytes are kept
-        var / (1u64 << 53) as f64 //Normalizing to 0 1
+        let var = (self.next_PRN() >> 11) as f64;
+        var / ((1u64 << 53) - 1) as f64 // Divide by (2^53 - 1) to get [0, 1]
     }
     pub fn random_int(&mut self, min: i32, max: i32) -> i32 {
         if max < min {

@@ -109,7 +109,10 @@ impl Parser {
         self.def_check.insert(id, true);
         let startnode = self.graph.force_get_node(0, NodeType::START); // assuming 0 is start
         let headernode = self.graph.force_get_node(id, NodeType::HEADER);
-        startnode.lock().unwrap().add_edge(headernode, 1.0);
+        {
+            let mut buffer = startnode.lock().unwrap();
+            buffer.add_edge(headernode, 1.0);
+        }
 
         if self.index > 0 && self.match_token(self.tokens[self.index - 1].typ, &[TokenType::Colon])
         {
@@ -146,17 +149,21 @@ impl Parser {
                     let pointer_id = self.get_index(&node);
                     let ptr = self.get_func_ptr();
                     let node = self.graph.force_get_node(ptr, NodeType::POINTER);
-                    node.lock().unwrap().pointer = pointer_id;
-
+                    {
+                        node.lock().unwrap().pointer = pointer_id;
+                    }
                     let probability = self.get_probability();
-                    buffer_node
-                        .lock()
-                        .unwrap()
-                        .add_edge(Arc::clone(&node), probability);
+                    {
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&node), probability);
+                    }
                     let ptr = self.get_func_ptr();
                     let jump_node = self.graph.force_get_node(ptr, NodeType::JUMP);
-                    node.lock().unwrap().add_edge(Arc::clone(&jump_node), 1.0);
-
+                    {
+                        node.lock().unwrap().add_edge(Arc::clone(&jump_node), 1.0);
+                    }
                     start_buffer = Some(Arc::clone(&buffer_node));
                     buffer_node = jump_node;
                 }
@@ -175,16 +182,20 @@ impl Parser {
 
                     let leafnode = self.graph.force_get_node(index, node_type);
                     let probability = self.get_probability();
-                    buffer_node
-                        .lock()
-                        .unwrap()
-                        .add_edge(Arc::clone(&leafnode), probability);
+                    {
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&leafnode), probability);
+                    }
                     let ptr = self.get_func_ptr();
                     let jump_node = self.graph.force_get_node(ptr, NodeType::JUMP);
-                    leafnode
-                        .lock()
-                        .unwrap()
-                        .add_edge(Arc::clone(&jump_node), 1.0);
+                    {
+                        leafnode
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&jump_node), 1.0);
+                    }
 
                     start_buffer = Some(Arc::clone(&buffer_node));
                     buffer_node = jump_node;
@@ -196,46 +207,58 @@ impl Parser {
                 TokenType::Maybe => {
                     if let Some(ref sb) = start_buffer {
                         let probability = self.get_probability();
-                        sb.lock()
-                            .unwrap()
-                            .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
+                        {
+                            sb.lock()
+                                .unwrap()
+                                .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
+                        }
                     }
                 }
                 TokenType::OneOrMore => {
                     if let Some(ref sb) = start_buffer {
                         let probability = self.get_probability();
-                        buffer_node
-                            .lock()
-                            .unwrap()
-                            .add_edge(Arc::clone(sb), probability);
+                        {
+                            buffer_node
+                                .lock()
+                                .unwrap()
+                                .add_edge(Arc::clone(sb), probability);
+                        }
                     }
                 }
                 TokenType::AnyNo => {
                     if let Some(ref sb) = start_buffer {
                         let probability = self.get_probability();
-                        sb.lock()
-                            .unwrap()
-                            .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
-                        buffer_node
-                            .lock()
-                            .unwrap()
-                            .add_edge(Arc::clone(sb), probability);
+                        {
+                            sb.lock()
+                                .unwrap()
+                                .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
+                        }
+                        {
+                            buffer_node
+                                .lock()
+                                .unwrap()
+                                .add_edge(Arc::clone(sb), probability);
+                        }
                     }
                 }
                 TokenType::Option => {
                     let probability = self.get_probability();
-                    buffer_node
-                        .lock()
-                        .unwrap()
-                        .add_edge(Arc::clone(&end_node), probability);
+                    {
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&end_node), probability);
+                    }
                     buffer_node = Arc::clone(&rootnode);
                     start_buffer = None;
                 }
                 TokenType::Padding => {
-                    buffer_node
-                        .lock()
-                        .unwrap()
-                        .add_edge(Arc::clone(&end_node), 1.0);
+                    {
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&end_node), 1.0);
+                    }
                     if is_deep {
                         self.errors.push("Stray '('".to_string());
                     }
@@ -244,19 +267,23 @@ impl Parser {
                 }
                 TokenType::BracOpen => {
                     self.index += 1;
-                    let (new_start, new_end) =
-                        self.parse_rules(buffer_node.lock().unwrap().id, true);
-                    start_buffer = new_start;
-                    if let Some(end) = new_end {
-                        buffer_node = end;
+                    {
+                        let buffer_id = buffer_node.lock().unwrap().id; // Lock acquired and immediately released
+                        let (new_start, new_end) = self.parse_rules(buffer_id, true);
+                        start_buffer = new_start;
+                        if let Some(end) = new_end {
+                            buffer_node = end;
+                        }
                     }
                 }
                 TokenType::BracClose => {
                     if is_deep {
-                        buffer_node
-                            .lock()
-                            .unwrap()
-                            .add_edge(Arc::clone(&end_node), 1.0);
+                        {
+                            buffer_node
+                                .lock()
+                                .unwrap()
+                                .add_edge(Arc::clone(&end_node), 1.0);
+                        }
                         return (Some(rootnode), Some(end_node));
                     }
                     self.errors.push("Stray ')' found".to_string());

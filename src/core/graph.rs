@@ -16,17 +16,17 @@ pub struct SyntaxGraph {
 }
 
 pub struct SyntaxNode {
-    options: Vec<SyntaxEdge>,
+    pub options: Vec<SyntaxEdge>,
     pub cumulative_frequency: Vec<f32>,
     pub id: u32,
     pub typ: NodeType,
     pub pointer: u32,
 }
-struct SyntaxEdge {
+pub struct SyntaxEdge {
     pub probability: f32,
     pub node: Arc<Mutex<SyntaxNode>>,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum NodeType {
     START,
     HEADER,
@@ -152,4 +152,36 @@ impl SyntaxNode {
     pub fn add_edge(&mut self, node: Arc<Mutex<SyntaxNode>>, probability: f32) {
         self.options.push(SyntaxEdge { probability, node });
     }
+}
+// Helper function to handle escape sequences
+fn unescape_string(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut chars = s.chars();
+
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            if let Some(next_ch) = chars.next() {
+                match next_ch {
+                    'n' => result.push('\n'),
+                    't' => result.push('\t'),
+                    'r' => result.push('\r'),
+                    '\\' => result.push('\\'),
+                    '\'' => result.push('\''),
+                    '"' => result.push('"'),
+                    _ => {
+                        // If it's not a recognized escape sequence, keep the backslash
+                        result.push('\\');
+                        result.push(next_ch);
+                    }
+                }
+            } else {
+                // Trailing backslash
+                result.push('\\');
+            }
+        } else {
+            result.push(ch);
+        }
+    }
+
+    result
 }
