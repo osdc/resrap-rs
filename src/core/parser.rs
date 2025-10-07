@@ -9,18 +9,17 @@ use std::{
 };
 
 pub struct Parser {
-    func_ptr: u32,
-    print_ptr: u32,
-    name_map: HashMap<String, u32>,
-    rev_name_map: HashMap<u32, String>,
-    def_check: HashMap<u32, bool>,
-    charmap: HashMap<u32, String>,
-    inter_rep: HashMap<u32, Vec<Token>>,
-    tokens: Vec<Token>,
-    errors: Vec<String>,
-    index: usize,
-    graph: SyntaxGraph,
-    regexhandler: Regexer,
+    pub func_ptr: u32,
+    pub print_ptr: u32,
+    pub name_map: HashMap<String, u32>,
+    pub rev_name_map: HashMap<u32, String>,
+    pub def_check: HashMap<u32, bool>,
+    pub charmap: HashMap<u32, String>,
+    pub tokens: Vec<Token>,
+    pub errors: Vec<String>,
+    pub index: usize,
+    pub graph: SyntaxGraph,
+    pub regexhandler: Regexer,
 }
 
 impl Parser {
@@ -32,7 +31,6 @@ impl Parser {
             rev_name_map: HashMap::new(),
             def_check: HashMap::new(),
             charmap: HashMap::new(),
-            inter_rep: HashMap::new(),
             tokens: Vec::new(),
             errors: Vec::new(),
             index: 0,
@@ -297,28 +295,5 @@ impl Parser {
         }
         self.index -= 1; // Reverting
         0.5
-    }
-
-    pub fn validate_graph(&self) -> Vec<String> {
-        if !self.errors.is_empty() {
-            return vec![];
-        }
-        let mut errors = Vec::new();
-        for (key, val) in &self.def_check {
-            if !val {
-                if let Some(name) = self.rev_name_map.get(key) {
-                    errors.push(format!("Definition of '{}' not found", name));
-                }
-            }
-        }
-        errors
-    }
-
-    pub fn set_tokens(&mut self, tokens: Vec<Token>) {
-        self.tokens = tokens;
-    }
-
-    pub fn get_errors(&self) -> &[String] {
-        &self.errors
     }
 }

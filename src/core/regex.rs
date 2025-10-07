@@ -8,7 +8,7 @@ struct CacheRexState {
     options: Vec<char>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Regexer {
     cached_rex: HashMap<String, CacheRexState>,
 }

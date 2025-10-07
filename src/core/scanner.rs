@@ -42,12 +42,6 @@ impl ScanError {
     }
 }
 
-impl fmt::Display for ScanError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error at position {}: {}", self.pos, self.msg)
-    }
-}
-
 pub struct Scanner {
     input: String,
     pos: usize,   // current byte offset
@@ -59,7 +53,7 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    fn new(input: String) -> Self {
+    pub fn new(input: String) -> Self {
         let chars: Vec<char> = input.chars().collect();
         Scanner {
             input,
@@ -149,7 +143,7 @@ impl Scanner {
         buf
     }
 
-    fn scan(mut self) -> (Vec<Token>, Vec<ScanError>) {
+    pub fn scan(mut self) -> (Vec<Token>, Vec<ScanError>) {
         let mut errs = Vec::new();
 
         while let Some(c) = self.next() {

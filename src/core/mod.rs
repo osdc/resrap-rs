@@ -1,6 +1,8 @@
-mod frozen_graph;
+pub mod file;
+pub mod frozen_graph;
 mod graph;
+mod graph_builder;
 mod parser;
-mod prng;
+pub mod prng;
 mod regex;
 mod scanner;

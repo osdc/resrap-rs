@@ -1,8 +1,5 @@
 use std::{
-    clone,
     collections::HashMap,
-    hash::Hash,
-    io::Error,
     sync::{Arc, Mutex},
 };
 
@@ -10,16 +7,16 @@ use crate::core::{
     frozen_graph::{FrozenSyntaxEdge, FrozenSyntaxGraph, FrozenSyntaxNode},
     regex::Regexer,
 };
-
+#[derive(Clone)]
 pub struct SyntaxGraph {
-    node_ref: HashMap<u32, Arc<Mutex<SyntaxNode>>>,
-    name_map: HashMap<String, u32>,
-    print_map: HashMap<u32, String>,
-    regexer: Regexer,
+    pub node_ref: HashMap<u32, Arc<Mutex<SyntaxNode>>>,
+    pub name_map: HashMap<String, u32>,
+    pub print_map: HashMap<u32, String>,
+    pub regexer: Regexer,
 }
 
 pub struct SyntaxNode {
-    pub options: Vec<SyntaxEdge>,
+    options: Vec<SyntaxEdge>,
     pub cumulative_frequency: Vec<f32>,
     pub id: u32,
     pub typ: NodeType,
@@ -67,14 +64,7 @@ impl SyntaxGraph {
             node
         }
     }
-    fn fetch_node(&self, id: u32) -> Result<Arc<Mutex<SyntaxNode>>, &str> {
-        if let Some(node) = self.node_ref.get(&id) {
-            Ok(Arc::clone(node))
-        } else {
-            Err("Node not found in graph")
-        }
-    }
-    fn normalize(&self) {
+    pub fn normalize(&self) {
         for node in self.node_ref.values() {
             let mut node_guard = node.lock().unwrap();
 
@@ -101,7 +91,7 @@ impl SyntaxGraph {
         }
     }
 
-    fn freeze(self) -> FrozenSyntaxGraph {
+    pub fn freeze(self) -> FrozenSyntaxGraph {
         // Step 1: Create all nodes (no edges)
         let mut frozen_nodes: HashMap<u32, Arc<FrozenSyntaxNode>> = HashMap::new();
 
