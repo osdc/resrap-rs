@@ -62,13 +62,12 @@ impl FrozenSyntaxGraph {
                         continue;
                     }
                     NodeType::END => {
-                        if graph_stack.is_empty() {
-                            return Ok(result);
-                        } else {
+                        if !graph_stack.is_empty() {
                             let ret_node = graph_stack.pop().unwrap();
                             current_id = ret_node;
+
+                            continue;
                         }
-                        continue;
                     }
                     _ => {}
                 }
