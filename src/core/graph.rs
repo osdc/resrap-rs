@@ -1,10 +1,34 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    clone,
+    collections::HashMap,
+    hash::Hash,
+    io::Error,
+    sync::{Arc, Mutex},
+};
 
 use crate::core::{
-    compiled_graph::{Compiled_Graph, Compiled_Syntax_Edge, Compiled_Syntax_Node},
+    frozen_graph::{FrozenSyntaxEdge, FrozenSyntaxGraph, FrozenSyntaxNode},
     regex::Regexer,
 };
 
+pub struct SyntaxGraph {
+    node_ref: HashMap<u32, Arc<Mutex<SyntaxNode>>>,
+    name_map: HashMap<String, u32>,
+    print_map: HashMap<u32, String>,
+    regexer: Regexer,
+}
+
+pub struct SyntaxNode {
+    pub options: Vec<SyntaxEdge>,
+    pub cumulative_frequency: Vec<f32>,
+    pub id: u32,
+    pub typ: NodeType,
+    pub pointer: u32,
+}
+struct SyntaxEdge {
+    pub probability: f32,
+    pub node: Arc<Mutex<SyntaxNode>>,
+}
 #[derive(Clone)]
 pub enum NodeType {
     START,
@@ -16,151 +40,126 @@ pub enum NodeType {
     POINTER,
     IDK,
 }
-
-pub struct SyntaxEdge {
-    pub probability: f32,
-    pub target_id: u32, // Store ID instead of reference
-}
-
-pub struct SyntaxNode {
-    pub id: u32,
-    pub typ: NodeType,
-    pub pointer: u32,
-    pub cf: Vec<f32>,
-    pub edges: Vec<SyntaxEdge>,
-}
-
-impl SyntaxNode {
-    pub fn add_edge(&mut self, target_id: u32, prob: f64) {
-        let edge = SyntaxEdge {
-            probability: prob as f32,
-            target_id,
-        };
-        self.edges.push(edge);
-    }
-
-    pub fn add_pointer(&mut self, id: u32) {
-        self.pointer = id;
-    }
-}
-
-pub struct SyntaxGraph {
-    pub node_ref: HashMap<u32, Box<SyntaxNode>>,
-    pub name_map: HashMap<String, u32>,
-    pub char_map: HashMap<u32, String>,
-}
-
 impl SyntaxGraph {
     pub fn new() -> Self {
         SyntaxGraph {
             node_ref: HashMap::new(),
             name_map: HashMap::new(),
-            char_map: HashMap::new(),
-        }
-    }
-
-    pub fn normalize(&mut self) {
-        // Collect all node IDs first to avoid borrow checker issues
-        let node_ids: Vec<u32> = self.node_ref.keys().copied().collect();
-
-        for id in node_ids {
-            if let Some(node) = self.node_ref.get_mut(&id) {
-                // Extract the probabilities
-                let mut cf_array: Vec<f32> = Vec::new();
-                let mut sum: f32 = 0.0;
-
-                for edge in &node.edges {
-                    cf_array.push(edge.probability);
-                    sum += edge.probability;
-                }
-
-                // Avoid division by zero
-                if sum == 0.0 {
-                    continue;
-                }
-
-                // Divide each element by the sum and convert to cumulative frequency
-                let mut cf: f32 = 0.0;
-                for i in 0..cf_array.len() {
-                    cf_array[i] = cf + cf_array[i] / sum;
-                    cf = cf_array[i];
-                }
-
-                // Now update the node's cf field
-                node.cf = cf_array;
-            }
-        }
-    }
-
-    pub fn compile(self) -> Compiled_Graph {
-        // Pass 1: Create all nodes without edges
-        let mut compiled_nodes: HashMap<u32, Arc<Compiled_Syntax_Node>> = HashMap::new();
-
-        for (id, node) in &self.node_ref {
-            let compiled_node = Arc::new(Compiled_Syntax_Node {
-                id: node.id,
-                typ: node.typ.clone(),
-                pointer: node.pointer,
-                cf: node.cf.clone(),
-                edges: None, // Will fill in pass 2
-            });
-            compiled_nodes.insert(*id, compiled_node);
-        }
-
-        // Pass 2: Fill in edges now that all nodes exist
-        let mut final_nodes: HashMap<u32, Arc<Compiled_Syntax_Node>> = HashMap::new();
-
-        for (id, node) in &self.node_ref {
-            let compiled_edges: Vec<Compiled_Syntax_Edge> = node
-                .edges
-                .iter()
-                .map(|edge| {
-                    let target_node = compiled_nodes
-                        .get(&edge.target_id)
-                        .expect("Target node should exist")
-                        .clone();
-
-                    Compiled_Syntax_Edge {
-                        probability: edge.probability,
-                        option: target_node,
-                    }
-                })
-                .collect();
-
-            let final_node = Arc::new(Compiled_Syntax_Node {
-                id: node.id,
-                typ: node.typ.clone(),
-                pointer: node.pointer,
-                cf: node.cf.clone(),
-                edges: Some(compiled_edges),
-            });
-
-            final_nodes.insert(*id, final_node);
-        }
-
-        Compiled_Graph {
-            node_ref: final_nodes,
-            name_map: self.name_map,
-            char_map: self.char_map,
+            print_map: HashMap::new(),
             regexer: Regexer::new(),
         }
     }
-
-    pub fn get_node(&mut self, id: u32, typ: NodeType) -> &mut Box<SyntaxNode> {
-        self.node_ref.entry(id).or_insert_with(|| {
-            Box::new(SyntaxNode {
+    pub fn force_get_node(&mut self, id: u32, typ: NodeType) -> Arc<Mutex<SyntaxNode>> {
+        //Will find or create node if not exists. Never fails
+        if let Some(node) = self.node_ref.get(&id) {
+            Arc::clone(node)
+        } else {
+            let node = SyntaxNode {
                 id,
                 typ,
+                options: vec![],
+                cumulative_frequency: vec![],
                 pointer: 0,
-                cf: vec![],
-                edges: vec![],
-            })
-        })
+            };
+
+            let node = Arc::new(Mutex::new(node));
+            self.node_ref.insert(id, Arc::clone(&node));
+            node
+        }
+    }
+    fn fetch_node(&self, id: u32) -> Result<Arc<Mutex<SyntaxNode>>, &str> {
+        if let Some(node) = self.node_ref.get(&id) {
+            Ok(Arc::clone(node))
+        } else {
+            Err("Node not found in graph")
+        }
+    }
+    fn normalize(&self) {
+        for node in self.node_ref.values() {
+            let mut node_guard = node.lock().unwrap();
+
+            // Collect probabilities
+            let mut CF: Vec<f32> = vec![];
+            let mut cf: f32 = 0.0;
+            let mut sum: f32 = 0.0;
+            for edge in &node_guard.options {
+                CF.push(edge.probability);
+                sum += edge.probability;
+            }
+
+            // Build cumulative frequency
+            for i in 0..CF.len() {
+                CF[i] = cf + CF[i] / sum;
+                cf = CF[i];
+            }
+
+            node_guard.cumulative_frequency = CF;
+            //Now we have a cool little CF Array Normalized to 1
+            // When picking random values, we pick one between 0 and 1
+            // And then choose its closest value from the array
+            // For probability based selection
+        }
+    }
+
+    fn freeze(self) -> FrozenSyntaxGraph {
+        // Step 1: Create all nodes (no edges)
+        let mut frozen_nodes: HashMap<u32, Arc<FrozenSyntaxNode>> = HashMap::new();
+
+        for (&id, node_arc) in &self.node_ref {
+            let node_guard = node_arc.lock().unwrap();
+            frozen_nodes.insert(
+                id,
+                Arc::new(FrozenSyntaxNode {
+                    id: node_guard.id,
+                    typ: node_guard.typ.clone(),
+                    pointer: node_guard.pointer,
+                    cumulative_frequency: node_guard.cumulative_frequency.clone(),
+                    options: vec![], // fill later
+                }),
+            );
+        }
+
+        // Step 2: Rebuild with filled options
+        let mut filled_nodes: HashMap<u32, Arc<FrozenSyntaxNode>> = HashMap::new();
+
+        for (&id, node_arc) in &self.node_ref {
+            let node_guard = node_arc.lock().unwrap();
+
+            let options = node_guard
+                .options
+                .iter()
+                .map(|edge| {
+                    let target_node = frozen_nodes.get(&edge.node.lock().unwrap().id).unwrap();
+                    FrozenSyntaxEdge {
+                        probability: edge.probability,
+                        node: Arc::clone(target_node),
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            filled_nodes.insert(
+                id,
+                Arc::new(FrozenSyntaxNode {
+                    id: node_guard.id,
+                    typ: node_guard.typ.clone(),
+                    pointer: node_guard.pointer,
+                    cumulative_frequency: node_guard.cumulative_frequency.clone(),
+                    options,
+                }),
+            );
+        }
+
+        FrozenSyntaxGraph {
+            node_ref: filled_nodes,
+            name_map: self.name_map,
+            print_map: self.print_map,
+            regexer: self.regexer,
+        }
     }
 }
 
-impl Default for SyntaxGraph {
-    fn default() -> Self {
-        Self::new()
+impl SyntaxNode {
+    pub fn add_edge(&mut self, node: Arc<Mutex<SyntaxNode>>, probability: f32) {
+        self.options.push(SyntaxEdge { probability, node });
     }
 }

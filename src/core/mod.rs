@@ -1,4 +1,4 @@
-mod compiled_graph;
+mod frozen_graph;
 mod graph;
 mod parser;
 mod prng;

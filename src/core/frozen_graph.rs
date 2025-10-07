@@ -1,0 +1,91 @@
+use std::{collections::HashMap, fmt::Pointer, sync::Arc, thread::JoinHandle};
+
+use crate::core::{graph::NodeType, prng::PRNG, regex::Regexer};
+
+pub struct FrozenSyntaxGraph {
+    pub node_ref: HashMap<u32, Arc<FrozenSyntaxNode>>,
+    pub name_map: HashMap<String, u32>,
+    pub print_map: HashMap<u32, String>,
+    pub regexer: Regexer,
+}
+
+pub struct FrozenSyntaxNode {
+    pub options: Vec<FrozenSyntaxEdge>,
+    pub cumulative_frequency: Vec<f32>,
+    pub id: u32,
+    pub typ: NodeType,
+    pub pointer: u32,
+}
+
+pub struct FrozenSyntaxEdge {
+    pub probability: f32,
+    pub node: Arc<FrozenSyntaxNode>,
+}
+impl FrozenSyntaxGraph {
+    fn fetch_node(&self, id: u32) -> Result<Arc<FrozenSyntaxNode>, &str> {
+        if let Some(node) = self.node_ref.get(&id) {
+            Ok(Arc::clone(node))
+        } else {
+            Err("Node not found in graph")
+        }
+    }
+    fn walk_graph(&self, mut prng: PRNG, start: String, tokens: usize) -> Result<String, &str> {
+        let mut result = String::from("");
+        let mut graph_stack: Vec<u32> = vec![];
+        if let Some(start_id) = self.name_map.get(&start) {
+            let starting_node = self.fetch_node(*start_id)?;
+            let mut printed_tokens: usize = 0;
+            let mut current = starting_node;
+            loop {
+                if printed_tokens >= tokens {
+                    return Ok(result);
+                }
+                match current.typ {
+                    NodeType::CH => {
+                        if let Some(content) = self.print_map.get(&current.id) {
+                            result.push_str(content);
+                            printed_tokens += 1;
+                        }
+                    }
+                    NodeType::RX => {
+                        if let Some(content) = self.print_map.get(&current.id) {
+                            let content = self.regexer.generate_string(content, &mut prng);
+                            result.push_str(&content);
+                            printed_tokens += 1;
+                        }
+                    }
+                    NodeType::POINTER => {
+                        if let Some(ret_node) = current.options.get(0) {
+                            graph_stack.push(ret_node.node.id);
+                            current = self.fetch_node(current.pointer).unwrap()
+                        }
+                    }
+                    NodeType::END => {
+                        if graph_stack.is_empty() {
+                            return Ok(result);
+                        } else {
+                            let ret_node = graph_stack.pop().unwrap();
+                            current = self.fetch_node(ret_node).unwrap();
+                        }
+                    }
+                    _ => {}
+                }
+                if current.options.is_empty() {
+                    return Ok(result);
+                }
+                let value = prng.random() as f32;
+                let index = match current
+                    .cumulative_frequency
+                    .iter()
+                    .position(|&x| x >= value)
+                {
+                    Some(i) => i,
+                    None => current.cumulative_frequency.len() - 1, // fallback: pick last edge
+                };
+                current = Arc::clone(&current.options[index].node);
+            }
+        } else {
+            Err("Could not find starting node")
+        }
+    }
+}

@@ -1,18 +1,21 @@
-use crate::core::graph::{NodeType, SyntaxGraph, SyntaxNode};
-use crate::core::regex::Regexer;
-use crate::core::scanner::{Token, TokenType};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::sync::Arc;
+use crate::core::{
+    graph::{NodeType, SyntaxGraph, SyntaxNode},
+    regex::Regexer,
+    scanner::{Token, TokenType},
+};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 pub struct Parser {
     func_ptr: u32,
     print_ptr: u32,
-    name_map: HashMap<String, u32>,     // Maps func names to their ids
-    rev_name_map: HashMap<u32, String>, // Help in debugging
-    def_check: HashMap<u32, bool>,      // To check if a function exists
-    charmap: HashMap<u32, String>,      // To store the print values corresponding to ids
-    inter_rep: HashMap<u32, Vec<Token>>, // Intermediate Representation
+    name_map: HashMap<String, u32>,
+    rev_name_map: HashMap<u32, String>,
+    def_check: HashMap<u32, bool>,
+    charmap: HashMap<u32, String>,
+    inter_rep: HashMap<u32, Vec<Token>>,
     tokens: Vec<Token>,
     errors: Vec<String>,
     index: usize,
@@ -23,8 +26,8 @@ pub struct Parser {
 impl Parser {
     pub fn new() -> Self {
         Parser {
-            print_ptr: u32::MAX, // grows downward
-            func_ptr: 1000,      // IDs below 1000 reserved for core graph nodes
+            print_ptr: u32::MAX / 2, // grows downward
+            func_ptr: 1000,          // IDs below 1000 reserved for core graph nodes
             name_map: HashMap::new(),
             rev_name_map: HashMap::new(),
             def_check: HashMap::new(),
@@ -39,7 +42,7 @@ impl Parser {
     }
 
     fn get_print_ptr(&mut self) -> u32 {
-        self.print_ptr = self.print_ptr.wrapping_sub(1);
+        self.print_ptr -= 1;
         self.print_ptr
     }
 
@@ -70,9 +73,8 @@ impl Parser {
         if let Some(&value) = self.name_map.get(name) {
             return value;
         }
-
         let value = self.get_func_ptr();
-        self.def_check.insert(value, false); // tb set back to true in the subject, else remain false
+        self.def_check.insert(value, false); // to be set back to true in the subject
         self.name_map.insert(name.to_string(), value);
         self.rev_name_map.insert(value, name.to_string());
         value
@@ -101,21 +103,18 @@ impl Parser {
         }
 
         let id = self.get_index(&subject.text);
-
-        // If map is already set to true
         if *self.def_check.get(&id).unwrap_or(&false) {
             self.errors
                 .push(format!("Multiple definitions for {}", subject.text));
         }
 
         self.def_check.insert(id, true);
+        let startnode = self.graph.force_get_node(0, NodeType::START); // assuming 0 is start
+        let headernode = self.graph.force_get_node(id, NodeType::HEADER);
+        startnode.lock().unwrap().add_edge(headernode, 1.0);
 
-        let mut startnode = self.graph.get_node(NodeType::START as u32, NodeType::START);
-        let header_node = self.graph.get_node(id, NodeType::HEADER);
-        startnode.add_edge(header_node, 1.0);
-
-        // Send here only if current is colon else crash code
-        if self.match_token(self.tokens[self.index - 1].typ, &[TokenType::Colon]) {
+        if self.index > 0 && self.match_token(self.tokens[self.index - 1].typ, &[TokenType::Colon])
+        {
             self.parse_rules(id, false);
         }
     }
@@ -124,15 +123,18 @@ impl Parser {
         &mut self,
         root: u32,
         is_deep: bool,
-    ) -> (Option<Arc<SyntaxNode>>, Option<Arc<SyntaxNode>>) {
-        let rootnode = self.graph.get_node(root, NodeType::IDK);
+    ) -> (
+        Option<Arc<Mutex<SyntaxNode>>>,
+        Option<Arc<Mutex<SyntaxNode>>>,
+    ) {
+        let rootnode = self.graph.force_get_node(root, NodeType::IDK);
         let mut buffer_node = Arc::clone(&rootnode);
-        let mut end_node = self.graph.get_node(NodeType::END as u32, NodeType::END);
-        let mut start_buffer: Option<Arc<SyntaxNode>> = None;
+        let mut end_node = self.graph.force_get_node(1, NodeType::END); // assuming 1 is end
+        let mut start_buffer: Option<Arc<Mutex<SyntaxNode>>> = None;
 
         if is_deep {
-            // Means called from a bracket so a pseudo end branch
-            end_node = self.graph.get_node(self.get_func_ptr(), NodeType::END);
+            let ptr = self.get_func_ptr();
+            end_node = self.graph.force_get_node(ptr, NodeType::END);
         }
 
         loop {
@@ -142,19 +144,22 @@ impl Parser {
 
             match self.curr().typ {
                 TokenType::Identifier => {
-                    // Means it's a reference to a different Subject (presumably)
-                    let pointer_id = self.get_index(&self.tokens[self.index].text);
-                    let func_ptr = self.get_func_ptr();
-                    let mut node = self.graph.get_node(func_ptr, NodeType::POINTER);
-                    node.add_pointer(pointer_id);
-                    buffer_node.add_edge(
-                        &self.graph,
-                        Arc::clone(&node),
-                        self.get_probability() as f64,
-                    );
-                    let jump_node = self.graph.get_node(self.get_func_ptr(), NodeType::JUMP);
-                    node.add_edge(&self.graph, Arc::clone(&jump_node), 1.0);
-                    start_buffer = Some(buffer_node);
+                    let node = self.tokens[self.index].text.clone();
+                    let pointer_id = self.get_index(&node);
+                    let ptr = self.get_func_ptr();
+                    let node = self.graph.force_get_node(ptr, NodeType::POINTER);
+                    node.lock().unwrap().pointer = pointer_id;
+
+                    let probability = self.get_probability();
+                    buffer_node
+                        .lock()
+                        .unwrap()
+                        .add_edge(Arc::clone(&node), probability);
+                    let ptr = self.get_func_ptr();
+                    let jump_node = self.graph.force_get_node(ptr, NodeType::JUMP);
+                    node.lock().unwrap().add_edge(Arc::clone(&jump_node), 1.0);
+
+                    start_buffer = Some(Arc::clone(&buffer_node));
                     buffer_node = jump_node;
                 }
                 TokenType::Character | TokenType::Regex => {
@@ -162,96 +167,105 @@ impl Parser {
                     self.charmap
                         .insert(index, self.tokens[self.index].text.clone());
 
-                    let leafnode = if self.tokens[self.index].typ == TokenType::Character {
-                        self.graph.get_node(index, NodeType::CH)
+                    let node_type = if self.tokens[self.index].typ == TokenType::Character {
+                        NodeType::CH
                     } else {
-                        let node = self.graph.get_node(index, NodeType::RX);
-                        self.regexhandler.cache_regex(&self.curr().text);
-                        node
+                        let text = self.curr().text.clone();
+                        self.regexhandler.cache_regex(&text);
+                        NodeType::RX
                     };
 
-                    buffer_node.add_edge(
-                        &self.graph,
-                        Arc::clone(&leafnode),
-                        self.get_probability() as f64,
-                    );
-                    let jump_node = self.graph.get_node(self.get_func_ptr(), NodeType::JUMP);
-                    leafnode.add_edge(&self.graph, Arc::clone(&jump_node), 1.0);
-                    start_buffer = Some(buffer_node);
+                    let leafnode = self.graph.force_get_node(index, node_type);
+                    let probability = self.get_probability();
+                    buffer_node
+                        .lock()
+                        .unwrap()
+                        .add_edge(Arc::clone(&leafnode), probability);
+                    let ptr = self.get_func_ptr();
+                    let jump_node = self.graph.force_get_node(ptr, NodeType::JUMP);
+                    leafnode
+                        .lock()
+                        .unwrap()
+                        .add_edge(Arc::clone(&jump_node), 1.0);
+
+                    start_buffer = Some(Arc::clone(&buffer_node));
                     buffer_node = jump_node;
                 }
                 TokenType::Colon => {
-                    // Colon is not allowed here
                     self.errors.push("Missing Semicolon".to_string());
                     return (None, None);
                 }
                 TokenType::Maybe => {
-                    if let Some(ref start_buf) = start_buffer {
-                        start_buf.add_edge(
-                            &self.graph,
-                            Arc::clone(&buffer_node),
-                            1.0 - self.get_probability() as f64,
-                        );
+                    if let Some(ref sb) = start_buffer {
+                        let probability = self.get_probability();
+                        sb.lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
                     }
                 }
                 TokenType::OneOrMore => {
-                    if let Some(ref start_buf) = start_buffer {
-                        buffer_node.add_edge(
-                            &self.graph,
-                            Arc::clone(start_buf),
-                            self.get_probability() as f64,
-                        );
+                    if let Some(ref sb) = start_buffer {
+                        let probability = self.get_probability();
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(sb), probability);
                     }
                 }
                 TokenType::AnyNo => {
-                    if let Some(ref start_buf) = start_buffer {
-                        start_buf.add_edge(
-                            &self.graph,
-                            Arc::clone(&buffer_node),
-                            1.0 - self.get_probability() as f64,
-                        );
-                        buffer_node.add_edge(
-                            &self.graph,
-                            Arc::clone(start_buf),
-                            self.get_probability() as f64,
-                        );
+                    if let Some(ref sb) = start_buffer {
+                        let probability = self.get_probability();
+                        sb.lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&buffer_node), 1.0 - probability);
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(sb), probability);
                     }
                 }
                 TokenType::Option => {
-                    buffer_node.add_edge(
-                        &self.graph,
-                        Arc::clone(&end_node),
-                        self.get_probability() as f64,
-                    );
+                    let probability = self.get_probability();
+                    buffer_node
+                        .lock()
+                        .unwrap()
+                        .add_edge(Arc::clone(&end_node), probability);
                     buffer_node = Arc::clone(&rootnode);
                     start_buffer = None;
                 }
                 TokenType::Padding => {
-                    buffer_node.add_edge(&self.graph, Arc::clone(&end_node), 1.0);
+                    buffer_node
+                        .lock()
+                        .unwrap()
+                        .add_edge(Arc::clone(&end_node), 1.0);
                     if is_deep {
                         self.errors.push("Stray '('".to_string());
                     }
                     self.index += 1;
-                    return (None, None); // End of this statement
+                    return (None, None);
                 }
                 TokenType::BracOpen => {
                     self.index += 1;
-                    let (start_buf, buf_node) = self.parse_rules(buffer_node.id, true);
-                    start_buffer = start_buf;
-                    if let Some(node) = buf_node {
-                        buffer_node = node;
+                    let (new_start, new_end) =
+                        self.parse_rules(buffer_node.lock().unwrap().id, true);
+                    start_buffer = new_start;
+                    if let Some(end) = new_end {
+                        buffer_node = end;
                     }
                 }
                 TokenType::BracClose => {
                     if is_deep {
-                        buffer_node.add_edge(&self.graph, Arc::clone(&end_node), 1.0);
+                        buffer_node
+                            .lock()
+                            .unwrap()
+                            .add_edge(Arc::clone(&end_node), 1.0);
                         return (Some(rootnode), Some(end_node));
                     }
                     self.errors.push("Stray ')' found".to_string());
                 }
                 TokenType::Infinite => {
-                    if let Some(ref start_buf) = start_buffer {
-                        end_node.add_edge(&self.graph, Arc::clone(start_buf), 1.0);
+                    if let Some(ref sb) = start_buffer {
+                        end_node.lock().unwrap().add_edge(Arc::clone(sb), 1.0);
                     }
                 }
                 _ => {}
@@ -264,7 +278,6 @@ impl Parser {
 
     fn get_probability(&mut self) -> f32 {
         self.index += 1;
-
         if self.index < self.tokens.len() && self.tokens[self.index].typ == TokenType::Probability {
             let num = &self.tokens[self.index].text;
             match num.parse::<f32>() {
@@ -282,7 +295,6 @@ impl Parser {
                 }
             }
         }
-
         self.index -= 1; // Reverting
         0.5
     }
@@ -291,7 +303,6 @@ impl Parser {
         if !self.errors.is_empty() {
             return vec![];
         }
-
         let mut errors = Vec::new();
         for (key, val) in &self.def_check {
             if !val {
@@ -305,20 +316,9 @@ impl Parser {
 
     pub fn set_tokens(&mut self, tokens: Vec<Token>) {
         self.tokens = tokens;
-        self.index = 0;
     }
 
     pub fn get_errors(&self) -> &[String] {
         &self.errors
-    }
-
-    pub fn get_graph(&self) -> &SyntaxGraph {
-        &self.graph
-    }
-}
-
-impl Default for Parser {
-    fn default() -> Self {
-        Self::new()
     }
 }
