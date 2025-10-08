@@ -1,8 +1,13 @@
 [package]
 name = "resrap"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
+description = "A rule based code generator"
+license = "MIT"
+repository = "https://github.com/osdc/resrap-rs"
+readme = "README.md"
+keywords = ["parser", "graph", "prng"]
+categories = ["parsers", "compilers"]
 
 [dependencies]
-petgraph = "0.8.3"
 rand = "0.9.2"
