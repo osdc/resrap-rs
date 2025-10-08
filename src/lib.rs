@@ -52,31 +52,6 @@ impl Resrap {
         err
     }
 
-    /// Generates content from the grammar identified by 'name'.
-    ///
-    /// # Arguments
-    /// * `name` - The grammar name to use
-    /// * `starting_node` - The starting heading in the grammar for generation
-    /// * `tokens` - Number of tokens to generate
-    ///
-    /// # Returns
-    /// A string containing the generated content.
-    /// The generation is non-deterministic (random).
-    pub fn generate_random(
-        &self,
-        name: &str,
-        starting_node: String,
-        tokens: usize,
-    ) -> Result<String, &str> {
-        let prng = PRNG::new(0);
-        self.language_graph
-            .get(name)
-            .unwrap()
-            .get_graph()
-            .unwrap()
-            .walk_graph(prng, starting_node, tokens)
-    }
-
     /// Generates content from the grammar identified by 'name' with a seed.
     ///
     /// # Arguments

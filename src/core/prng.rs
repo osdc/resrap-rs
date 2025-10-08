@@ -1,4 +1,3 @@
-use rand::Rng;
 pub struct PRNG {
     seed: u64,
     number: u64,
@@ -7,23 +6,14 @@ pub struct PRNG {
 impl PRNG {
     pub fn new(seed: u64) -> Self {
         let mut prng = PRNG { seed: 0, number: 0 };
-        if seed == 0 {
-            prng.generate_seed();
-        } else {
-            prng.set_seed(seed);
-        }
+        prng.set_seed(seed);
         prng
     }
     pub fn set_seed(&mut self, seed: u64) {
         self.number = seed;
         self.seed = seed;
     }
-    pub fn generate_seed(&mut self) {
-        let mut rn = rand::rng();
-        let var: u64 = rn.random();
-        self.number = var;
-        self.seed = var;
-    }
+
     pub fn next_prn(&mut self) -> u64 {
         self.number ^= self.number << 13;
         self.number ^= self.number >> 7;
