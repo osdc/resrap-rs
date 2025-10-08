@@ -1,5 +1,5 @@
 [package]
-name = "resrap"
+name = "resrap-rs"
 version = "0.1.1"
 edition = "2024"
 description = "A rule based code generator"

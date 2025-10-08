@@ -89,7 +89,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "resrap"
+name = "resrap-rs"
 version = "0.1.1"
 dependencies = [
  "rand",
