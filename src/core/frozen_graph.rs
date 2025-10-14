@@ -21,8 +21,13 @@ pub struct FrozenSyntaxEdge {
     pub node: Arc<FrozenSyntaxNode>,
 }
 impl FrozenSyntaxGraph {
-    pub fn walk_graph(&self, mut prng: PRNG, start: String, tokens: usize) -> Result<String, &str> {
-        let mut result = String::from("");
+    pub fn walk_graph(
+        &self,
+        mut prng: PRNG,
+        start: String,
+        tokens: usize,
+    ) -> Result<Vec<String>, &str> {
+        let mut result: Vec<String> = vec![];
         let mut graph_stack: Vec<u32> = vec![];
 
         if let Some(start_id) = self.name_map.get(&start) {
@@ -43,14 +48,14 @@ impl FrozenSyntaxGraph {
                 match current.typ {
                     NodeType::CH => {
                         if let Some(content) = self.print_map.get(&current.id) {
-                            result.push_str(&unescape_string(&content));
+                            result.push(unescape_string(&content));
                             printed_tokens += 1;
                         }
                     }
                     NodeType::RX => {
                         if let Some(content) = self.print_map.get(&current.id) {
                             let content = self.regexer.generate_string(content, &mut prng);
-                            result.push_str(&content);
+                            result.push(content);
                             printed_tokens += 1;
                         }
                     }

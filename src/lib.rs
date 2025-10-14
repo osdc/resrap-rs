@@ -62,13 +62,13 @@ impl Resrap {
     ///
     /// # Returns
     /// A string containing the generated content.
-    pub fn generate_with_seeded(
+    pub fn generate_with_seed(
         &self,
         name: &str,
         starting_node: String,
         seed: u64,
         tokens: usize,
-    ) -> Result<String, &str> {
+    ) -> Result<Vec<String>, &str> {
         let prng = PRNG::new(seed);
         self.language_graph
             .get(name)
