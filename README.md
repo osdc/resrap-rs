@@ -1,6 +1,6 @@
 # Resrap
 [![Landing](https://img.shields.io/badge/docs-resrap.osdc.dev-blue)](https://resrap.osdc.dev)
-[![Go Reference](https://pkg.go.dev/badge/github.com/osdc/resrap.svg)](https://pkg.go.dev/github.com/osdc/resrap)
+[![Rust Docs](https://img.shields.io/badge/docs.rs-resrap--rs-orange?logo=rust&logoColor=white)](https://docs.rs/resrap-rs/latest/resrap_rs/struct.Resrap.html)
 
 *Just a parser… in reverse.*
 
