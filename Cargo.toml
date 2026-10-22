@@ -1,6 +1,6 @@
 [package]
 name = "resrap-rs"
-version = "0.2.1"
+version = "1.0.0"
 edition = "2024"
 rust-version = "1.85"
 description = "Seedable, grammar-based code and text generation"

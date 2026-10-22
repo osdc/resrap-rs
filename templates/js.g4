@@ -1,9 +1,10 @@
 // JavaScript template with functions, classes, arrays, maps and exceptions.
-@words msg   = hello, world, resrap, generated, code, javascript, compiler, grammar, ready, done
+@words msg   = hello, world, resrap, generated, code, javascript, compiler, grammar, ready, done, starting, started, finished, complete, loading, saving, parsing, rendering, building, running, idle, busy, queued, cached, updated, created, deleted, inserted, found, missing, valid, invalid, empty, success, failure, warning, error, retry, pending, active, online, offline, local, remote, fast, slow, secure, public, private, shared, custom, default, primary, secondary, backup, hello_world, build_started, build_finished, parse_error, file_not_found, access_denied, operation_complete, invalid_input, retry_later, connection_lost, cache_miss, cache_hit, request_failed, task_complete
 @words digit = 1, 2, 3, 4, 5, 6, 7, 8, 9
-@words prefix = compute, process, update, handle, build, check, render, collect, parse, encode, decode, merge, split, find, apply, visit
-@words tail   = a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
-@words label  = alpha, beta, gamma, delta, omega
+@words prefix = compute, process, update, handle, build, check, render, collect, parse, encode, decode, merge, split, find, apply, visit, create, destroy, allocate, release, load, store, fetch, send, receive, open, close, read, write, validate, normalize, transform, convert, serialize, deserialize, filter, reduce, scan, sort, search, insert, remove, replace, compare, calculate, analyze, summarize, generate, evaluate, execute, schedule, dispatch, resolve, connect, disconnect, flush, drain, inspect, measure
+@words label  = alpha, beta, gamma, delta, epsilon, zeta, eta, theta, iota, kappa, lambda, mu, nu, xi, omicron, pi, rho, sigma, tau, upsilon, phi, chi, psi, omega, red, green, blue, amber, cyan, magenta, silver, golden
+@words entity = user, account, order, item, record, event, session, invoice, payment, product, project, task, ticket, message, cache, buffer, queue, worker, request, response, config, profile, report, metric, log, file, document, group, member, role, permission, setting, address, country, region, category, tag, comment, review, shipment, inventory, warehouse, employee, department, customer, supplier
+@words proper = User, Account, Order, Item, Record, Event, Session, Invoice, Payment, Product, Project, Task, Ticket, Message, Cache, Buffer, Queue, Worker, Request, Response, Config, Profile, Report, Metric, Log, File, Document, Group, Member, Role, Permission, Setting, Address, Country, Region, Category, Tag, Comment, Review, Shipment, Inventory, Warehouse, Employee, Department, Customer, Supplier
 
 program: header main declaration^ '\nmain();\n';
 
@@ -21,11 +22,11 @@ function: 'function ' fname '(seed) {\n' functionlocals statement*<0.9> '    ret
 
 asyncfunction: 'async function ' fname '(seed) {\n' functionlocals statement*<0.8> '    await Promise.resolve(count);\n    return total;\n}\n\n';
 
-classdecl: 'class ' tname ' {\n    constructor(seed) {\n        this.seed = seed;\n        this.label = "alpha";\n    }\n\n    ' methodname '(amount) {\n' classbody '        return this.seed + amount;\n    }\n}\n\n';
+classdecl: 'class ' tname ' {\n    constructor(seed) {\n        this.seed = seed;\n        this.label = "' label '";\n    }\n\n    ' methodname '(amount) {\n' classbody '        return this.seed + amount;\n    }\n}\n\n';
 
 constdecl: 'const ' cname ' = {\n    id: ' number ',\n    name: "' label '",\n    value: ' float ',\n    items: [1, 2, 3],\n    describe() {\n        return this.name + ":" + this.id;\n    }\n};\n\n';
 
-functionlocals: '    let count = seed;\n    let total = 0;\n    const values = [];\n    const lookup = new Map();\n    const label = "alpha";\n';
+functionlocals: '    let count = seed;\n    let total = 0;\n    const values = [];\n    const lookup = new Map();\n    const label = "' label '";\n';
 
 classbody: '        let count = amount;\n        let total = this.seed;\n        const values = [];\n        const lookup = new Map();\n        const label = this.label;\n';
 
@@ -48,7 +49,7 @@ simple:
 
 assign: '    count += ' number ';\n' | '    total += count * ' number ';\n' | '    total = total * 2 + count;\n';
 
-printstmt: '    console.log(label, count, total);\n';
+printstmt: '    console.log(label, "' msg '", count, total);\n';
 
 ifstmt: '    if (count > ' number ') {\n' simple+<0.6> '        total += ' number ';\n    } else {\n        total -= 1;\n    }\n';
 
@@ -66,9 +67,9 @@ mapstmt: '    lookup.set(label, count);\n' | '    total += lookup.get(label) || 
 
 trycatch: '    try {\n        if (count < 0) throw new Error("negative");\n        total += count;\n    } catch (error) {\n        total += ' number ';\n    }\n';
 
-fname: prefix '_' tail tail tail tail;
-tname: 'Type_' tail tail tail tail;
-cname: 'CONFIG_' tail tail tail;
-methodname: 'score_' tail tail;
+fname: prefix '_' entity ('_' digit)?;
+tname: 'Type' proper ('_' digit)?;
+cname: 'CONFIG_' entity ('_' digit)?;
+methodname: 'score_' entity ('_' digit)?;
 number: digit digit?;
 float: number '.' number;

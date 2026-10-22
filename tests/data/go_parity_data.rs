@@ -1,4 +1,7 @@
-// Generated from the Go reference implementation. Do not edit by hand.
+// Inline cases are generated from the Go reference implementation.
+// Template cases are Rust regression snapshots: the embedded templates use
+// expanded word lists and therefore no longer match the Go package byte-for-byte.
+// Regenerate template expectations after intentional template changes.
 pub static CASES: &[ParityCase] = &[
     ParityCase {
         name: "simple-random-1",
@@ -129,23 +132,39 @@ a1c;"#,
 #include <stdint.h>
 #include <stdbool.h>
 
-static int process_ibap(int seed) {
+static int render_log(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "nu";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
     }
-    if (count > 7) {
-    count = (count > 91) ? count - 4 : count + 61;
-        total += 1;
+    if (count > 3) {
+    count += 9;
+    printf("%s: %d %.2f\n", label, count, value);
+        total += 16;
     } else {
         total -= 1;
     }
+    count = (count > 2) ? count - 16 : count + 2;
     return total;
 }
+
+typedef struct TypeCustomer_1 {
+    int id;
+    double value;
+    char label[32];
+    int items[8];
+} TypeRecord_1;
+
+typedef struct TypeRequest_7 {
+    int id;
+    double value;
+    char label[32];
+    int items[8];
+} TypeAddress;
 
 int main(void) {
     int values[8] = {3, 1, 4, 1, 5, 9, 2, 6};
@@ -154,68 +173,20 @@ int main(void) {
         total += values[i];
     }
     printf("start: %d\n", total);
-    printf("done: %s\n", "gamma");
+    printf("done: %s\n", "pi");
     return 0;
 }
 
-int visit_fdgd(int seed) {
+int resolve_worker_6(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "tau";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
     }
-    items[count % 8] = count + 96;
-    return total;
-}
-
-int apply_ihcg(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    switch (count % 3) {
-    case 0:
-        total += 1;
-        break;
-    case 1:
-        total += 2;
-        break;
-    default:
-        total += 3;
-        break;
-    }
-    printf("%s: %d %.2f\n", label, count, value);
-    return total;
-}
-
-int update_mhah(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    switch (count % 3) {
-    case 0:
-        total += 1;
-        break;
-    case 1:
-        total += 2;
-        break;
-    default:
-        total += 3;
-        break;
-    }
-    printf("%s: %d %.2f\n", label, count, value);
+    items[count % 8] = count + 3;
     return total;
 }
 
@@ -235,17 +206,36 @@ int update_mhah(int seed) {
 #include <stdint.h>
 #include <stdbool.h>
 
-static int visit_heii(int seed) {
+static int drain_report(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "iota";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
     }
     return total;
 }
+
+static int insert_address_3(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    char label[32] = "upsilon";
+    int items[8] = {0};
+    for (int i = 0; i < 8; ++i) {
+        items[i] = i + seed;
+    }
+    items[count % 8] = count + 93;
+    for (int i = 0; i < 8; ++i) {
+        total += items[i % 8];
+    }
+    total += items[count % 8];
+    return total;
+}
+
+enum KindMetric_1 { VALUE_A = 0, VALUE_B = 1, VALUE_C = 2 };
 
 int main(void) {
     int values[8] = {3, 1, 4, 1, 5, 9, 2, 6};
@@ -254,51 +244,43 @@ int main(void) {
         total += values[i];
     }
     printf("start: %d\n", total);
-    printf("done: %s\n", "gamma");
+    printf("done: %s\n", "alpha");
     return 0;
 }
 
-int compute_nbaj(int seed) {
+int free_order_2(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "psi";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
-    }
-    for (int i = 0; i < 16; ++i) {
-        total += items[i % 8];
     }
     return total;
 }
 
-int parse_ikok(int seed) {
+int update_supplier(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "silver";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
     }
+    if (count > 2) {
+    items[count % 8] = count + 89;
+    value = value * 9.9;
     printf("%s: %d %.2f\n", label, count, value);
-    return total;
-}
-
-int encode_pjda(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    value = value * 2.3;
-    while (count < 72) {
-        ++count;
-        total += count;
+    snprintf(label, sizeof(label), "%s", "resrap");
+    count += 95;
+    total += count * 1;
+    printf("%s: %d %.2f\n", label, count, value);
+    count = (count > 1) ? count - 6 : count + 43;
+        total += 9;
+    } else {
+        total -= 1;
     }
     return total;
 }
@@ -319,7 +301,7 @@ int encode_pjda(int seed) {
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef unsigned long Type_fme;
+typedef unsigned long TypeCache_3;
 
 int main(void) {
     int values[8] = {3, 1, 4, 1, 5, 9, 2, 6};
@@ -328,15 +310,15 @@ int main(void) {
         total += values[i];
     }
     printf("start: %d\n", total);
-    printf("done: %s\n", "beta");
+    printf("done: %s\n", "eta");
     return 0;
 }
 
-int build_kpmm(int seed) {
+int schedule_request(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "amber";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
@@ -345,94 +327,46 @@ int build_kpmm(int seed) {
     return total;
 }
 
-int merge_haim(int seed) {
+int remove_config_5(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    switch (count % 3) {
-    case 0:
-        total += 1;
-        break;
-    case 1:
-        total += 2;
-        break;
-    default:
-        total += 3;
-        break;
-    }
-    return total;
-}
-
-int compute_dbmb(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
+    char label[32] = "nu";
     int items[8] = {0};
     for (int i = 0; i < 8; ++i) {
         items[i] = i + seed;
     }
     total += items[count % 8];
-    return total;
-}
-
-int render_akim(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    printf("%s: %d %.2f\n", label, count, value);
-    items[count % 8] = count + 66;
-    return total;
-}
-
-int visit_mcbf(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    char label[32] = "alpha";
-    int items[8] = {0};
-    for (int i = 0; i < 8; ++i) {
-        items[i] = i + seed;
-    }
-    for (int i = 0; i < 33; ++i) {
+    for (int i = 0; i < 67; ++i) {
         total += items[i % 8];
+    }
+    return total;
+}
+
+int close_permission_7(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    char label[32] = "gamma";
+    int items[8] = {0};
+    for (int i = 0; i < 8; ++i) {
+        items[i] = i + seed;
+    }
+    return total;
+}
+
+int destroy_region_4(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    char label[32] = "beta";
+    int items[8] = {0};
+    for (int i = 0; i < 8; ++i) {
+        items[i] = i + seed;
+    }
+    value = value * 7.21;
     printf("%s: %d %.2f\n", label, count, value);
-    }
-    while (count < 25) {
-        ++count;
-        total += count;
-    }
-    if (count > 83) {
-    total += items[count % 8];
-    items[count % 8] = count + 8;
-    items[count % 8] = count + 49;
-    items[count % 8] = count + 72;
-    count = (count > 13) ? count - 4 : count + 56;
-        total += 2;
-    } else {
-        total -= 1;
-    }
-    if (count > 22) {
-    items[count % 8] = count + 71;
-        total += 7;
-    } else {
-        total -= 1;
-    }
-    while (count < 58) {
-        ++count;
-        total += count;
-    items[count % 8] = count + 59;
-    }
+    printf("%s: %d %.2f\n", label, count, value);
     return total;
 }
 
@@ -476,67 +410,70 @@ T clamp_value(T value, T low, T high) {
 }
 
 int main() {
-    Box box(helper(3), "alpha");
+    Box box(helper(3), "delta");
     std::vector<int> values = {3, 1, 4, 1, 5};
     std::sort(values.begin(), values.end());
     int total = clamp_value(std::accumulate(values.begin(), values.end(), 0), 0, 100);
     std::cout << "start: " << box.describe() << " " << total << std::endl;
-    std::cout << "done: " << "done" << std::endl;
+    std::cout << "done: " << "cache_miss" << std::endl;
     return 0;
 }
 
-int check_diod(int seed) {
+int store_project(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "alpha";
+    std::string label = "eta";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
+    total += *held + 24;
+    return total;
+}
+
+int load_role(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "theta";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    items.push_back(2);
+    return total;
+}
+
+int close_customer_1(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "delta";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    for (int i = 0; i < 55; ++i) {
+        count += i;
+    }
     std::cout << label << ": " << count << " " << value << std::endl;
-    guard = 3;
-    while (guard > 0) {
-        --guard;
-        count += 1;
-    ready = (count % 2 == 0) ? true : false;
-    }
     return total;
 }
 
-int handle_pefd(int seed) {
+int decode_tag(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "omega";
+    std::string label = "tau";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
-    try {
-        if (count < 0) {
-            throw std::runtime_error("negative count");
-        }
-        total += count;
-    } catch (const std::exception& e) {
-        total += 54;
-    }
-    return total;
-}
-
-int apply_ihcg(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    std::string label = "omega";
-    std::vector<int> items;
-    std::map<std::string, int> lookup;
-    std::unique_ptr<int> held = std::make_unique<int>(seed);
-    bool ready = true;
-    int guard = 0;
-    total = std::accumulate(items.begin(), items.end(), 0);
     switch (count % 3) {
     case 0:
         count += 1;
@@ -548,23 +485,9 @@ int apply_ihcg(int seed) {
         count += 3;
         break;
     }
-    return total;
-}
-
-int render_hahg(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    std::string label = "delta";
-    std::vector<int> items;
-    std::map<std::string, int> lookup;
-    std::unique_ptr<int> held = std::make_unique<int>(seed);
-    bool ready = true;
-    int guard = 0;
-    value = value * 5.31;
-    if (count > 5) {
-    std::sort(items.begin(), items.end());
-    value = std::max(value, 3.43);
+    ready = (count % 2 == 0) ? true : false;
+    if (count > 4) {
+    ready = (count % 2 == 0) ? true : false;
         count += 1;
     } else {
         count -= 1;
@@ -612,33 +535,16 @@ T clamp_value(T value, T low, T high) {
 }
 
 int main() {
-    Box box(helper(3), "beta");
+    Box box(helper(3), "iota");
     std::vector<int> values = {3, 1, 4, 1, 5};
     std::sort(values.begin(), values.end());
     int total = clamp_value(std::accumulate(values.begin(), values.end(), 0), 0, 100);
     std::cout << "start: " << box.describe() << " " << total << std::endl;
-    std::cout << "done: " << "cpp" << std::endl;
+    std::cout << "done: " << "error" << std::endl;
     return 0;
 }
 
-int parse_jchl(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    std::string label = "beta";
-    std::vector<int> items;
-    std::map<std::string, int> lookup;
-    std::unique_ptr<int> held = std::make_unique<int>(seed);
-    bool ready = true;
-    int guard = 0;
-    ready = (count % 2 == 0) ? true : false;
-    count = count + 4;
-    std::sort(items.begin(), items.end());
-    value = std::max(value, 5.4);
-    return total;
-}
-
-int merge_cddi(int seed) {
+int convert_group(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
@@ -648,40 +554,64 @@ int merge_cddi(int seed) {
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
-    for (const auto& item : items) {
-        count += item;
+    std::cout << label << ": " << count << " " << value << std::endl;
+    total += *held + 15;
+    for (int i = 0; i < 1; ++i) {
+        count += i;
     }
+    total = std::accumulate(items.begin(), items.end(), 0);
+    std::ostringstream out;
+    out << label << ":" << count;
+    label = out.str();
     return total;
 }
 
-int find_capc(int seed) {
+int encode_product_5(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "gamma";
+    std::string label = "sigma";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
-    total += *held + 53;
+    try {
+        if (count < 0) {
+            throw std::runtime_error("negative count");
+        }
+        total += count;
+    } catch (const std::exception& e) {
+        total += 54;
+    }
     return total;
 }
 
-int visit_lkge(int seed) {
+int resolve_buffer(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "beta";
+    std::string label = "green";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
-    {
-        auto add = [](int a, int b) { return a + b; };
-        count = add(count, 2);
-    }
+    std::cout << label << ": " << count << " " << value << std::endl;
+    return total;
+}
+
+int drain_setting(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "red";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    std::cout << label << ": " << count << " " << value << std::endl;
     return total;
 }
 
@@ -725,20 +655,72 @@ T clamp_value(T value, T low, T high) {
 }
 
 int main() {
-    Box box(helper(3), "beta");
+    Box box(helper(3), "iota");
     std::vector<int> values = {3, 1, 4, 1, 5};
     std::sort(values.begin(), values.end());
     int total = clamp_value(std::accumulate(values.begin(), values.end(), 0), 0, 100);
     std::cout << "start: " << box.describe() << " " << total << std::endl;
-    std::cout << "done: " << "hello" << std::endl;
+    std::cout << "done: " << "code" << std::endl;
     return 0;
 }
 
-int update_pegk(int seed) {
+int collect_customer_3(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "delta";
+    std::string label = "theta";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    for (const auto& item : items) {
+        count += item;
+    }
+    return total;
+}
+
+int insert_log(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "green";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    try {
+        if (count < 0) {
+            throw std::runtime_error("negative count");
+        }
+        total += count;
+    } catch (const std::exception& e) {
+        total += 2;
+    }
+    items.push_back(44);
+    return total;
+}
+
+int fetch_ticket_2(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "theta";
+    std::vector<int> items;
+    std::map<std::string, int> lookup;
+    std::unique_ptr<int> held = std::make_unique<int>(seed);
+    bool ready = true;
+    int guard = 0;
+    lookup[label] = count;
+    return total;
+}
+
+int load_metric(int seed) {
+    int count = seed;
+    int total = 0;
+    double value = 1.5;
+    std::string label = "iota";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
@@ -755,40 +737,20 @@ int update_pegk(int seed) {
         count += 3;
         break;
     }
-    items.push_back(1);
-    count = count + 42;
     return total;
 }
 
-int check_pafd(int seed) {
+int create_order_3(int seed) {
     int count = seed;
     int total = 0;
     double value = 1.5;
-    std::string label = "omega";
+    std::string label = "mu";
     std::vector<int> items;
     std::map<std::string, int> lookup;
     std::unique_ptr<int> held = std::make_unique<int>(seed);
     bool ready = true;
     int guard = 0;
-    guard = 25;
-    while (guard > 0) {
-        --guard;
-        count += 1;
-    items.push_back(44);
-    }
-    return total;
-}
-
-int parse_ogdf(int seed) {
-    int count = seed;
-    int total = 0;
-    double value = 1.5;
-    std::string label = "alpha";
-    std::vector<int> items;
-    std::map<std::string, int> lookup;
-    std::unique_ptr<int> held = std::make_unique<int>(seed);
-    bool ready = true;
-    int guard = 0;
+    total += *held + 51;
     return total;
 }
 
@@ -826,78 +788,69 @@ func main() {
     fmt.Println(c.Describe())
 }
 
-type Type_eiba []int
+type TypeCache []int
 
-func apply_iodm(seed int) int {
+func destroy_permission(seed int) int {
     count := seed
     total := 0
     values := []int{count}
     lookup := map[string]int{"start": count}
-    label := "alpha"
+    label := "eta"
     _ = values
     _ = lookup
     _ = label
-    count += 4
-    switch count % 3 {
-    case 0:
-        total += 1
-    case 1:
-        total += 2
-    default:
-        total += 3
-    }
-    for i := 0; i < 78; i++ {
-        total += i
-    values = append(values, count + 14)
-    }
-    fmt.Println(label, count, total)
-    total = total*2 + count
+    total += strings.Count(label, "a")
     return total
 }
 
-type Type_cbfh interface {
-    Describe() string
-    Score(seed int) int
-}
-
-func (c Counter) handle_dcmc(seed int) int {
+func reduce_member_8(seed int) int {
     count := seed
     total := 0
     values := []int{count}
     lookup := map[string]int{"start": count}
-    label := "alpha"
+    label := "zeta"
     _ = values
     _ = lookup
     _ = label
     fmt.Println(label, count, total)
-    return total + c.Value
+    return total
 }
 
-func (c Counter) render_hahg(seed int) int {
+func (c Counter) visit_project_2(seed int) int {
     count := seed
     total := 0
     values := []int{count}
     lookup := map[string]int{"start": count}
-    label := "alpha"
+    label := "golden"
     _ = values
     _ = lookup
     _ = label
-    for _, value := range values {
-        total += value
-    }
-    fmt.Println(label, count, total)
-    for _, value := range values {
-        total += value
-    }
-    for _, value := range values {
-        total += value
-    }
-    if count > 8 {
-    values = append(values, count + 77)
+    label = strings.TrimSpace(label + " hello_world")
+    if count > 4 {
+    values = append(values, count + 43)
         total += 6
     } else {
         total -= 1
     }
+    return total + c.Value
+}
+
+type TypePayment struct {
+    ID int
+    Name string
+    Value float64
+    Items []int
+}
+
+func (c Counter) allocate_document(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "omega"
+    _ = values
+    _ = lookup
+    _ = label
     return total + c.Value
 }
 
@@ -935,63 +888,19 @@ func main() {
     fmt.Println(c.Describe())
 }
 
-type Type_khei struct {
+type TypePermission struct {
     ID int
     Name string
     Value float64
     Items []int
 }
 
-type Type_jchl struct {
-    ID int
-    Name string
-    Value float64
-    Items []int
+type TypeSupplier interface {
+    Describe() string
+    Score(seed int) int
 }
 
-func process_jhdc(seed int) int {
-    count := seed
-    total := 0
-    values := []int{count}
-    lookup := map[string]int{"start": count}
-    label := "alpha"
-    _ = values
-    _ = lookup
-    _ = label
-    total += count * 6
-    return total
-}
-
-func parse_okbc(seed int) int {
-    count := seed
-    total := 0
-    values := []int{count}
-    lookup := map[string]int{"start": count}
-    label := "alpha"
-    _ = values
-    _ = lookup
-    _ = label
-    for _, value := range values {
-        total += value
-    }
-    return total
-}
-
-func (c Counter) visit_dagi(seed int) int {
-    count := seed
-    total := 0
-    values := []int{count}
-    lookup := map[string]int{"start": count}
-    label := "alpha"
-    _ = values
-    _ = lookup
-    _ = label
-    sort.Ints(values)
-    total += values[0]
-    return total + c.Value
-}
-
-func split_oilc(seed int) int {
+func (c Counter) process_user_8(seed int) int {
     count := seed
     total := 0
     values := []int{count}
@@ -1001,19 +910,73 @@ func split_oilc(seed int) int {
     _ = lookup
     _ = label
     total += len(values)
-    sort.Ints(values)
-    total += values[0]
-    sort.Ints(values)
-    total += values[0]
-    switch count % 3 {
-    case 0:
-        total += 1
-    case 1:
-        total += 2
-    default:
-        total += 3
-    }
+    total += count * 6
+    return total + c.Value
+}
+
+func serialize_inventory_2(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "eta"
+    _ = values
+    _ = lookup
+    _ = label
     return total
+}
+
+func (c Counter) replace_document(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "amber"
+    _ = values
+    _ = lookup
+    _ = label
+    for _, value := range values {
+        total += value
+    }
+    total += count * 17
+    return total + c.Value
+}
+
+func measure_record(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "chi"
+    _ = values
+    _ = lookup
+    _ = label
+    sort.Ints(values)
+    total += values[0]
+    return total
+}
+
+func (c Counter) find_account(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "omega"
+    _ = values
+    _ = lookup
+    _ = label
+    if count > 98 {
+    fmt.Println(label, count, total)
+    fmt.Println(label, count, total)
+    total += count * 15
+    values = append(values, count + 58)
+    fmt.Println(label, count, total)
+    values = append(values, count + 52)
+        total += 1
+    } else {
+        total -= 1
+    }
+    return total + c.Value
 }
 
 "#,
@@ -1050,34 +1013,18 @@ func main() {
     fmt.Println(c.Describe())
 }
 
-func (c Counter) process_megb(seed int) int {
+func (c Counter) render_region_4(seed int) int {
     count := seed
     total := 0
     values := []int{count}
     lookup := map[string]int{"start": count}
-    label := "alpha"
+    label := "eta"
     _ = values
     _ = lookup
     _ = label
-    total += count * 48
-    fmt.Println(label, count, total)
-    return total + c.Value
-}
-
-type Type_ibdl interface {
-    Describe() string
-    Score(seed int) int
-}
-
-func (c Counter) update_gnln(seed int) int {
-    count := seed
-    total := 0
-    values := []int{count}
-    lookup := map[string]int{"start": count}
-    label := "alpha"
-    _ = values
-    _ = lookup
-    _ = label
+    for _, value := range values {
+        total += value
+    }
     switch count % 3 {
     case 0:
         total += 1
@@ -1086,31 +1033,98 @@ func (c Counter) update_gnln(seed int) int {
     default:
         total += 3
     }
-    delete(lookup, "missing")
-    for i := 0; i < 38; i++ {
-        total += i
     fmt.Println(label, count, total)
-    }
-    for _, value := range values {
-        total += value
-    }
     return total + c.Value
 }
 
-func merge_ghij(seed int) int {
+func validate_project(seed int) int {
     count := seed
     total := 0
     values := []int{count}
     lookup := map[string]int{"start": count}
-    label := "alpha"
+    label := "eta"
     _ = values
     _ = lookup
     _ = label
-    for i := 0; i < 7; i++ {
-        total += i
-    count += 1
+    fmt.Println(label, count, total)
+    total += lookup[label]
+    return total
+}
+
+func load_event(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "omicron"
+    _ = values
+    _ = lookup
+    _ = label
+    return total
+}
+
+func validate_project(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "psi"
+    _ = values
+    _ = lookup
+    _ = label
+    return total
+}
+
+func (c Counter) fetch_file_7(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "amber"
+    _ = values
+    _ = lookup
+    _ = label
+    return total + c.Value
+}
+
+func render_ticket_3(seed int) int {
+    count := seed
+    total := 0
+    values := []int{count}
+    lookup := map[string]int{"start": count}
+    label := "golden"
+    _ = values
+    _ = lookup
+    _ = label
+    fmt.Println(label, count, total)
+    lookup[label] = count
+    if count > 2 {
+    values = append(values, count + 95)
+    total += len(values)
+    values = append(values, count + 8)
+    values = append(values, count + 49)
+    values = append(values, count + 72)
+    total = total*2 + count
+    total += count * 76
+    fmt.Println(label, count, total)
+        total += 57
+    } else {
+        total -= 1
     }
-    count += 39
+    if count > 22 {
+    values = append(values, count + 71)
+        total += 7
+    } else {
+        total -= 1
+    }
+    switch count % 3 {
+    case 0:
+        total += 1
+    case 1:
+        total += 2
+    default:
+        total += 3
+    }
     return total
 }
 
@@ -1129,33 +1143,35 @@ func merge_ghij(seed int) int {
 import Data.List (sort, nub)
 import Data.Maybe (fromMaybe)
 
-build_bapc seed =
-    let count = seed + 36
-        total = count * 1
-        values = [1 .. 3]
-    in if count > 13
+allocate_record seed =
+    let count = seed + 4
+        total = count * 6
+        values = [1 .. 9]
+    in if count > 9
         then total + sum values
         else total - count
 
-update_jfhk seed =
-    case seed `mod` 3 of
-        0 -> seed + 65
-        1 -> seed * 54
-        _ -> seed - 7
-
-compute_fbpg seed =
-    let count = seed + 1
-        total = count * 51
-        values = [1 .. 32]
-    in if count > 32
-        then total + sum values
-        else total - count
-
-decode_cdog seed =
-    let count = seed + 6
-        total = count * 1
+schedule_member_6 seed =
+    let count = seed + 56
+        total = count * 65
         values = [1 .. 54]
-    in if count > 6
+    in if count > 7
+        then total + sum values
+        else total - count
+
+update_cache seed =
+    let count = seed + 7
+        total = count * 12
+        values = [1 .. 5]
+    in if count > 2
+        then total + sum values
+        else total - count
+
+parse_invoice_7 seed =
+    let count = seed + 84
+        total = count * 6
+        values = [1 .. 1]
+    in if count > 54
         then total + sum values
         else total - count
 
@@ -1175,6 +1191,7 @@ main = do
     print (nub [1, 2, 1, 3, 2])
     print (fromMaybe 0 (Just (sum values)))
     print (describe (Counter (sum values)))
+    putStrLn ("magenta: shared")
 "#,
     },
     ParityCase {
@@ -1190,37 +1207,31 @@ main = do
 import Data.List (sort, nub)
 import Data.Maybe (fromMaybe)
 
-decode_eiip seed =
-    let count = seed + 9
-        total = count * 2
-        values = [1 .. 1]
-    in if count > 5
+search_ticket seed =
+    let count = seed + 3
+        total = count * 4
+        values = [1 .. 5]
+    in if count > 3
         then total + sum values
         else total - count
 
-apply_idga seed =
-    let count = seed + 7
-        total = count * 17
-        values = [1 .. 1]
-    in if count > 2
+filter_project seed =
+    case seed `mod` 3 of
+        0 -> seed + 24
+        1 -> seed * 6
+        _ -> seed - 8
+
+serialize_inventory_2 seed =
+    let count = seed + 3
+        total = count * 98
+        values = [1 .. 5]
+    in if count > 6
         then total + sum values
         else total - count
 
-handle_nbia seed =
-    let count = seed + 7
-        total = count * 88
-        values = [1 .. 82]
-    in if count > 2
-        then total + sum values
-        else total - count
+encode_record seed = sum (map (\x -> x * 28 + seed) (filter even [1 .. 78]))
 
-decode_doil seed =
-    let count = seed + 95
-        total = count * 1
-        values = [1 .. 43]
-    in if count > 8
-        then total + sum values
-        else total - count
+parse_event_7 seed = sum (map (\x -> x * 9 + seed) (filter even [1 .. 1]))
 
 data Counter = Counter { value :: Int }
 
@@ -1238,6 +1249,7 @@ main = do
     print (nub [1, 2, 1, 3, 2])
     print (fromMaybe 0 (Just (sum values)))
     print (describe (Counter (sum values)))
+    putStrLn ("eta: busy")
 "#,
     },
     ParityCase {
@@ -1253,37 +1265,37 @@ main = do
 import Data.List (sort, nub)
 import Data.Maybe (fromMaybe)
 
-check_egbn seed =
-    let count = seed + 35
-        total = count * 82
-        values = [1 .. 3]
-    in if count > 6
+free_task_1 seed =
+    let count = seed + 22
+        total = count * 3
+        values = [1 .. 4]
+    in if count > 86
         then total + sum values
         else total - count
 
-decode_iiha seed =
-    let count = seed + 12
-        total = count * 87
-        values = [1 .. 45]
-    in if count > 4
-        then total + sum values
-        else total - count
+validate_project seed =
+    case seed `mod` 3 of
+        0 -> seed + 12
+        1 -> seed * 2
+        _ -> seed - 4
 
-visit_gmen seed =
-    let count = seed + 1
-        total = count * 16
-        values = [1 .. 8]
-    in if count > 3
-        then total + sum values
-        else total - count
+receive_country_6 seed =
+    case seed `mod` 3 of
+        0 -> seed + 91
+        1 -> seed * 38
+        _ -> seed - 1
 
-parse_mdna seed =
-    let count = seed + 7
-        total = count * 21
-        values = [1 .. 33]
-    in if count > 43
-        then total + sum values
-        else total - count
+inspect_metric_8 seed =
+    case seed `mod` 3 of
+        0 -> seed + 2
+        1 -> seed * 66
+        _ -> seed - 81
+
+analyze_record_1 seed =
+    case seed `mod` 3 of
+        0 -> seed + 57
+        1 -> seed * 2
+        _ -> seed - 23
 
 data Counter = Counter { value :: Int }
 
@@ -1301,6 +1313,7 @@ main = do
     print (nub [1, 2, 1, 3, 2])
     print (fromMaybe 0 (Just (sum values)))
     print (describe (Counter (sum values)))
+    putStrLn ("rho: invalid")
 "#,
     },
     ParityCase {
@@ -1330,66 +1343,66 @@ main = do
     </header>
 
     <article class="post">
-        <h2>team</h2>
-        <p>feature</p>
-        <p>html</p>
+        <h2>open_source</h2>
+        <p>roadmap</p>
+        <p>community</p>
         <a href="#read-more">Read more</a>
     </article>
 
-    <p>grammar product grammar</p>
+    <p>sign_up analytics sign_up</p>
     <figure>
-        <img src="image-13.png" alt="world">
-        <figcaption>html</figcaption>
+        <img src="image-13.png" alt="docs">
+        <figcaption>example</figcaption>
     </figure>
 
     <article class="post">
-        <h2>hello</h2>
-        <p>feature</p>
-        <p>hello</p>
+        <h2>resrap</h2>
+        <p>settings</p>
+        <p>generated</p>
         <a href="#read-more">Read more</a>
     </article>
 
     <form action="#" method="post">
         <label for="name">Name</label>
-        <input id="name" name="name" type="text" placeholder="team">
+        <input id="name" name="name" type="text" placeholder="cloud_native">
         <label for="email">Email</label>
         <input id="email" name="email" type="email" placeholder="you@example.com">
         <button type="submit">Submit</button>
     </form>
 
     <section class="cards">
-        <h2>resrap</h2>
+        <h2>pricing</h2>
         <div class="card">
-            <h3>resrap</h3>
-            <p>team</p>
+            <h3>features</h3>
+            <p>real_time</p>
         </div>
         <div class="card">
-            <h3>product</h3>
-            <p>product</p>
-        </div>
-    </section>
-
-    <section class="cards">
-        <h2>world</h2>
-        <div class="card">
-            <h3>html</h3>
-            <p>team</p>
-        </div>
-        <div class="card">
-            <h3>markup</h3>
-            <p>world</p>
+            <h3>settings</h3>
+            <p>privacy</p>
         </div>
     </section>
 
     <section class="cards">
-        <h2>world</h2>
+        <h2>html</h2>
         <div class="card">
-            <h3>product</h3>
-            <p>generated</p>
+            <h3>overview</h3>
+            <p>open_source</p>
         </div>
         <div class="card">
-            <h3>generated</h3>
-            <p>product</p>
+            <h3>benefits</h3>
+            <p>feature</p>
+        </div>
+    </section>
+
+    <section class="cards">
+        <h2>feature</h2>
+        <div class="card">
+            <h3>terms</h3>
+            <p>customer</p>
+        </div>
+        <div class="card">
+            <h3>documentation</h3>
+            <p>terms</p>
         </div>
     </section>
 
@@ -1435,45 +1448,40 @@ main = do
             <tr><th>Name</th><th>Value</th><th>Status</th></tr>
         </thead>
         <tbody>
-            <tr><td>feature</td><td>3</td><td>active</td></tr>
-            <tr><td>team</td><td>8</td><td>pending</td></tr>
+            <tr><td>project</td><td>3</td><td>featured</td></tr>
+            <tr><td>analytics</td><td>86</td><td>verified</td></tr>
         </tbody>
     </table>
 
+    <ul class="feature-list">
+    </ul>
     <article class="post">
-        <h2>docs</h2>
-        <p>generated</p>
-        <p>team</p>
-        <a href="#read-more">Read more</a>
-    </article>
-
-    <article class="post">
-        <h2>hello</h2>
-        <p>generated</p>
-        <p>resrap</p>
+        <h2>world</h2>
+        <p>customer</p>
+        <p>welcome</p>
         <a href="#read-more">Read more</a>
     </article>
 
     <section class="cards">
-        <h2>team</h2>
+        <h2>enterprise_ready</h2>
         <div class="card">
-            <h3>docs</h3>
-            <p>product</p>
+            <h3>best_practices</h3>
+            <p>terms</p>
         </div>
         <div class="card">
-            <h3>markup</h3>
-            <p>markup</p>
+            <h3>details</h3>
+            <p>updates</p>
         </div>
     </section>
 
     <details>
-        <summary>resrap</summary>
-        <p>resrap</p>
+        <summary>features</summary>
+        <p>documentation</p>
     </details>
 
     <details>
-        <summary>feature</summary>
-        <p>markup</p>
+        <summary>settings</summary>
+        <p>insights</p>
     </details>
 
     <form action="#" method="post">
@@ -1486,18 +1494,18 @@ main = do
 
     <details>
         <summary>hello</summary>
-        <p>world</p>
+        <p>product</p>
     </details>
 
     <section class="cards">
-        <h2>feature</h2>
+        <h2>settings</h2>
         <div class="card">
-            <h3>world</h3>
-            <p>hello</p>
+            <h3>markup</h3>
+            <p>code</p>
         </div>
         <div class="card">
-            <h3>resrap</h3>
-            <p>product</p>
+            <h3>documentation</h3>
+            <p>log_in</p>
         </div>
     </section>
 
@@ -1540,38 +1548,38 @@ main = do
 
     <form action="#" method="post">
         <label for="name">Name</label>
-        <input id="name" name="name" type="text" placeholder="feature">
+        <input id="name" name="name" type="text" placeholder="project">
         <label for="email">Email</label>
         <input id="email" name="email" type="email" placeholder="you@example.com">
         <button type="submit">Submit</button>
     </form>
 
-    <p>feature generated html</p>
-    <p>team feature docs</p>
+    <p>roadmap customer example</p>
+    <p>real_time project release_notes</p>
     <ul class="feature-list">
-        <li>product</li>
+        <li>log_in</li>
     </ul>
     <section id="home" class="hero">
-        <h1>code</h1>
-        <p>world</p>
+        <h1>performance</h1>
+        <p>feature</p>
         <a class="button" href="#features">Get started</a>
     </section>
 
-    <p>team generated html</p>
+    <p>cloud_native contact support</p>
     <section class="cards">
-        <h2>hello</h2>
+        <h2>html</h2>
         <div class="card">
-            <h3>team</h3>
-            <p>code</p>
+            <h3>built_to_scale</h3>
+            <p>reliability</p>
         </div>
         <div class="card">
-            <h3>generated</h3>
-            <p>code</p>
+            <h3>about</h3>
+            <p>security</p>
         </div>
     </section>
 
-    <p>hello markup docs</p>
-    <p>product code markup</p>
+    <p>hello resources changelog</p>
+    <p>analytics security updates</p>
     <footer class="site-footer">
         <p>Generated by Resrap</p>
         <ul>
@@ -1607,60 +1615,66 @@ public class Main {
         System.out.println("start: " + values + " " + total);
     }
 
-    static class Type_ibap {
+    static class TypeLog {
         int id;
         String name = "item";
         double value = 1.5;
         int score() { return id + name.length(); }
     }
 
-    private static int handle_odme(int seed) {
+    private static int release_payment_1(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        System.out.println(label + ": " + count + " " + total);
-        for (int i = 0; i < 4; i++) {
-            total += i;
-        total += count * 2;
-        System.out.println(label + ": " + count + " " + total);
+        String label = "golden";
+        count += 4;
+        while (count < 45) {
+            count += 1;
+            total += count;
         }
+        while (count < 16) {
+            count += 1;
+            total += count;
+        }
+        Collections.sort(values);
         return total;
     }
 
-    private static int handle_ppla(int seed) {
+    private static int drain_region(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
         String label = "alpha";
-        count += 51;
-        System.out.println(label + ": " + count + " " + total);
-        if (count > 2) {
-        total += values.size();
-        total = total * 2 + count;
-            total += 2;
-        } else {
-            total -= 1;
-        }
-        total += values.size();
-        return total;
-    }
-
-    private static int merge_eedg(int seed) {
-        int count = seed;
-        int total = 0;
-        List<Integer> values = new ArrayList<>();
-        Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        System.out.println(label + ": " + count + " " + total);
-        values.add(count + 1);
         try {
-            total += Integer.parseInt("77");
+            total += Integer.parseInt("5");
         } catch (NumberFormatException e) {
             total += 1;
         }
+        try {
+            total += Integer.parseInt("43");
+        } catch (NumberFormatException e) {
+            total += 1;
+        }
+        return total;
+    }
+
+    private static int summarize_document_2(int seed) {
+        int count = seed;
+        int total = 0;
+        List<Integer> values = new ArrayList<>();
+        Map<String, Integer> lookup = new HashMap<>();
+        String label = "green";
+        for (int value : values) {
+            total += value;
+        }
+        for (int i = 0; i < 6; i++) {
+            total += i;
+        values.add(count + 98);
+        System.out.println(label + ": hello_world " + count + " " + total);
+        }
+        System.out.println(label + ": world " + count + " " + total);
         return total;
     }
 
@@ -1691,71 +1705,74 @@ public class Main {
         System.out.println("start: " + values + " " + total);
     }
 
-    static int decode_eiip(int seed) {
+    static int search_ticket(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
+        String label = "omega";
+        for (int i = 0; i < 2; i++) {
+            total += i;
+        values.add(count + 9);
+        }
         lookup.put(label, count);
         return total + seed;
     }
 
-    private static int build_gjng(int seed) {
+    static int compare_review(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        lookup.put(label, count);
-        switch (count % 3) {
-            case 0: total += 1; break;
-            case 1: total += 2; break;
-            default: total += 3; break;
+        String label = "rho";
+        if (count > 6) {
+        count += 25;
+        total += count * 6;
+        total = total * 2 + count;
+            total += 2;
+        } else {
+            total -= 1;
         }
-        return total;
-    }
-
-    private static int compute_peec(int seed) {
-        int count = seed;
-        int total = 0;
-        List<Integer> values = new ArrayList<>();
-        Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        for (int i = 0; i < 58; i++) {
-            total += i;
-        }
-        return total;
-    }
-
-    static int compute_iecj(int seed) {
-        int count = seed;
-        int total = 0;
-        List<Integer> values = new ArrayList<>();
-        Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        total += count * 17;
         return total + seed;
     }
 
-    private static int visit_blad(int seed) {
+    private static int search_product(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        try {
-            total += Integer.parseInt("46");
-        } catch (NumberFormatException e) {
-            total += 1;
-        }
-        try {
-            total += Integer.parseInt("3");
-        } catch (NumberFormatException e) {
-            total += 1;
-        }
-        for (int i = 0; i < 86; i++) {
+        String label = "epsilon";
+        for (int i = 0; i < 97; i++) {
             total += i;
+        count += 9;
+        }
+        return total;
+    }
+
+    private static int visit_country_9(int seed) {
+        int count = seed;
+        int total = 0;
+        List<Integer> values = new ArrayList<>();
+        Map<String, Integer> lookup = new HashMap<>();
+        String label = "xi";
+        try {
+            total += Integer.parseInt("42");
+        } catch (NumberFormatException e) {
+            total += 1;
+        }
+        total += count * 15;
+        try {
+            total += Integer.parseInt("58");
+        } catch (NumberFormatException e) {
+            total += 1;
+        }
+        for (int value : values) {
+            total += value;
+        }
+        try {
+            total += Integer.parseInt("52");
+        } catch (NumberFormatException e) {
+            total += 1;
         }
         return total;
     }
@@ -1787,64 +1804,66 @@ public class Main {
         System.out.println("start: " + values + " " + total);
     }
 
-    static int check_egbn(int seed) {
+    static int release_task_1(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        switch (count % 3) {
-            case 0: total += 1; break;
-            case 1: total += 2; break;
-            default: total += 3; break;
-        }
+        String label = "epsilon";
+        lookup.put(label, count);
         return total + seed;
     }
 
-    private static int decode_jkod(int seed) {
+    static int dispatch_metric_3(int seed) {
         int count = seed;
         int total = 0;
         List<Integer> values = new ArrayList<>();
         Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        System.out.println(label + ": " + count + " " + total);
+        String label = "rho";
+        count += 12;
+        return total + seed;
+    }
+
+    static int receive_member_4(int seed) {
+        int count = seed;
+        int total = 0;
+        List<Integer> values = new ArrayList<>();
+        Map<String, Integer> lookup = new HashMap<>();
+        String label = "golden";
+        total += lookup.getOrDefault(label, 0);
+        return total + seed;
+    }
+
+    private static int find_role(int seed) {
+        int count = seed;
+        int total = 0;
+        List<Integer> values = new ArrayList<>();
+        Map<String, Integer> lookup = new HashMap<>();
+        String label = "silver";
+        try {
+            total += Integer.parseInt("5");
+        } catch (NumberFormatException e) {
+            total += 1;
+        }
+        System.out.println(label + ": error " + count + " " + total);
+        return total;
+    }
+
+    static int check_record(int seed) {
+        int count = seed;
+        int total = 0;
+        List<Integer> values = new ArrayList<>();
+        Map<String, Integer> lookup = new HashMap<>();
+        String label = "omega";
+        if (count > 4) {
+        Collections.sort(values);
+        System.out.println(label + ": inserted " + count + " " + total);
+        Collections.sort(values);
         count += 83;
-        return total;
-    }
-
-    interface Type_pafd {
-        String describe();
-        int score(int seed);
-    }
-
-    interface Type_ohek {
-        String describe();
-        int score(int seed);
-    }
-
-    private static int process_plip(int seed) {
-        int count = seed;
-        int total = 0;
-        List<Integer> values = new ArrayList<>();
-        Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        System.out.println(label + ": " + count + " " + total);
-        for (int value : values) {
-            total += value;
+            total += 1;
+        } else {
+            total -= 1;
         }
-        for (int value : values) {
-            total += value;
-        }
-        return total;
-    }
-
-    static int process_bfee(int seed) {
-        int count = seed;
-        int total = 0;
-        List<Integer> values = new ArrayList<>();
-        Map<String, Integer> lookup = new HashMap<>();
-        String label = "alpha";
-        total = total * 2 + count;
         return total + seed;
     }
 
@@ -1869,32 +1888,37 @@ function main() {
     lookup.set("start", total);
     console.log("start:", values, lookup.get("start"));
 }
-function parse_apcm(seed) {
+function transform_order_2(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
-    console.log(label, count, total);
+    const label = "magenta";
+    total = total * 2 + count;
     return total;
 }
 
-const CONFIG_egg = {
-    id: 52,
-    name: "omega",
-    value: 8.57,
-    items: [1, 2, 3],
-    describe() {
-        return this.name + ":" + this.id;
-    }
-};
-
-function handle_dfca(seed) {
+function apply_shipment_6(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
+    const label = "mu";
+    values.sort((a, b) => a - b);
+    return total;
+}
+
+function receive_tag(seed) {
+    let count = seed;
+    let total = 0;
+    const values = [];
+    const lookup = new Map();
+    const label = "mu";
+    for (let i = 0; i < 1; i++) {
+        total += i;
+    }
+    count += 51;
+    console.log(label, "primary", count, total);
     switch (count % 3) {
         case 0:
             total += 1;
@@ -1906,32 +1930,29 @@ function handle_dfca(seed) {
             total += 3;
             break;
     }
-    count += 51;
-    console.log(label, count, total);
-    if (count > 2) {
     total += values.length;
-    total = total * 2 + count;
-        total += 2;
-    } else {
-        total -= 1;
+    console.log(label, "inserted", count, total);
+    for (const value of values) {
+        total += value;
     }
     total += values.length;
     return total;
 }
 
-function merge_eedg(seed) {
+function replace_message_3(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
-    console.log(label, count, total);
-    values.push(count + 1);
-    try {
-        if (count < 0) throw new Error("negative");
-        total += count;
-    } catch (error) {
-        total += 77;
+    const label = "tau";
+    for (const value of values) {
+        total += value;
+    }
+    if (count > 8) {
+    values.push(count + 77);
+        total += 6;
+    } else {
+        total -= 1;
     }
     return total;
 }
@@ -1958,45 +1979,58 @@ function main() {
     lookup.set("start", total);
     console.log("start:", values, lookup.get("start"));
 }
-function collect_iipj(seed) {
+function validate_file(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
-    for (const value of values) {
-        total += value;
+    const label = "amber";
+    try {
+        if (count < 0) throw new Error("negative");
+        total += count;
+    } catch (error) {
+        total += 7;
     }
+    total += lookup.get(label) || 0;
     return total;
 }
 
-function parse_jnga(seed) {
+function compare_project_6(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
-    console.log(label, count, total);
+    const label = "blue";
+    switch (count % 3) {
+        case 0:
+            total += 1;
+            break;
+        case 1:
+            total += 2;
+            break;
+        default:
+            total += 3;
+            break;
+    }
+    try {
+        if (count < 0) throw new Error("negative");
+        total += count;
+    } catch (error) {
+        total += 86;
+    }
+    for (let i = 0; i < 58; i++) {
+        total += i;
+    }
     return total;
 }
 
-const CONFIG_lai = {
-    id: 68,
-    name: "delta",
-    value: 3.98,
-    items: [1, 2, 3],
-    describe() {
-        return this.name + ":" + this.id;
-    }
-};
-
-class Type_ommn {
+class TypeResponse {
     constructor(seed) {
         this.seed = seed;
-        this.label = "alpha";
+        this.label = "zeta";
     }
 
-    score_pc(amount) {
+    score_event(amount) {
         let count = amount;
         let total = this.seed;
         const values = [];
@@ -2006,20 +2040,25 @@ class Type_ommn {
     }
 }
 
-class Type_ddck {
-    constructor(seed) {
-        this.seed = seed;
-        this.label = "alpha";
+function transform_session_9(seed) {
+    let count = seed;
+    let total = 0;
+    const values = [];
+    const lookup = new Map();
+    const label = "omega";
+    total += count * 1;
+    while (count < 73) {
+        count += 1;
+        total += count;
     }
-
-    score_pl(amount) {
-        let count = amount;
-        let total = this.seed;
-        const values = [];
-        const lookup = new Map();
-        const label = this.label;
-        return this.seed + amount;
+    console.log(label, "shared", count, total);
+    if (count > 98) {
+    console.log(label, "inserted", count, total);
+        total += 34;
+    } else {
+        total -= 1;
     }
+    return total;
 }
 
 
@@ -2044,28 +2083,23 @@ function main() {
     lookup.set("start", total);
     console.log("start:", values, lookup.get("start"));
 }
-function split_gbni(seed) {
+function calculate_request_8(seed) {
     let count = seed;
     let total = 0;
     const values = [];
     const lookup = new Map();
-    const label = "alpha";
-    try {
-        if (count < 0) throw new Error("negative");
-        total += count;
-    } catch (error) {
-        total += 2;
-    }
+    const label = "chi";
+    lookup.set(label, count);
     return total;
 }
 
-class Type_edib {
+class TypeSupplier {
     constructor(seed) {
         this.seed = seed;
-        this.label = "alpha";
+        this.label = "theta";
     }
 
-    score_ha(amount) {
+    score_file(amount) {
         let count = amount;
         let total = this.seed;
         const values = [];
@@ -2075,35 +2109,47 @@ class Type_edib {
     }
 }
 
-function encode_ipaf(seed) {
-    let count = seed;
-    let total = 0;
-    const values = [];
-    const lookup = new Map();
-    const label = "alpha";
-    total = total * 2 + count;
-    if (count > 3) {
-    console.log(label, count, total);
-        total += 1;
-    } else {
-        total -= 1;
+class TypeCountry {
+    constructor(seed) {
+        this.seed = seed;
+        this.label = "lambda";
     }
-    return total;
+
+    score_member_4(amount) {
+        let count = amount;
+        let total = this.seed;
+        const values = [];
+        const lookup = new Map();
+        const label = this.label;
+        return this.seed + amount;
+    }
 }
 
-function merge_ghij(seed) {
-    let count = seed;
-    let total = 0;
-    const values = [];
-    const lookup = new Map();
-    const label = "alpha";
-    for (let i = 0; i < 7; i++) {
-        total += i;
-    count += 1;
+class TypeCache_5 {
+    constructor(seed) {
+        this.seed = seed;
+        this.label = "alpha";
     }
-    count += 39;
-    return total;
+
+    score_address(amount) {
+        let count = amount;
+        let total = this.seed;
+        const values = [];
+        const lookup = new Map();
+        const label = this.label;
+        return this.seed + amount;
+    }
 }
+
+const CONFIG_document_2 = {
+    id: 8,
+    name: "delta",
+    value: 14.33,
+    items: [1, 2, 3],
+    describe() {
+        return this.name + ":" + this.id;
+    }
+};
 
 
 main();
@@ -2128,58 +2174,60 @@ def main():
     print("sqrt:", round(math.sqrt(total), 2))
     print("random:", random.randint(1, 9))
 
-def parse_apcm(seed):
+def transform_order_2(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    print(label, count, total)
+    label = "magenta"
+    total = total * 2 + count
     return total
 
-class Type_eggc:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_cj(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-class Type_dakb:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_pe(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-def check_pgig(seed):
+def apply_shipment_6(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    for i in range(89):
+    label = "mu"
+    total += len(values)
+    return total
+
+def receive_tag(seed):
+    count = seed
+    total = 0
+    values = []
+    lookup = {}
+    label = "mu"
+    for i in range(1):
         total += i
+    total = total * 2 + count
     return total
 
-def apply_kicd(seed):
+class TypeMetric:
+    def __init__(self, seed):
+        self.seed = seed
+        self.label = "nu"
+
+    def score_tag(self, amount):
+        count = self.seed + amount
+        total = 0
+        values = [count, amount, self.seed]
+        for value in values:
+            total += value
+        return total + len(self.label)
+
+def apply_address_5(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    total += count * 2
+    label = "pi"
+    total += count * 46
+    if count > 9:
+        values.append(count + 3)
+        total += 13
+    else:
+        total -= 1
     return total
 
 
@@ -2206,58 +2254,52 @@ def main():
     print("sqrt:", round(math.sqrt(total), 2))
     print("random:", random.randint(1, 9))
 
-def collect_iipj(seed):
+def validate_file(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
+    label = "amber"
+    total += sum(x * x for x in range(7))
+    total += len([x for x in values if x > 68])
+    return total
+
+def reduce_file(seed):
+    count = seed
+    total = 0
+    values = []
+    lookup = {}
+    label = "nu"
+    for i in range(3):
+        total += i
+    return total
+
+def process_shipment(seed):
+    count = seed
+    total = 0
+    values = []
+    lookup = {}
+    label = "omega"
     for value in values:
         total += value
+    for value in values:
+        total += value
+    count += 85
+    try:
+        total += int("2")
+    except ValueError:
+        total += 1
+    total = total * 2 + count
+    total = total * 2 + count
     return total
 
-def parse_jnga(seed):
+def analyze_region_6(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    print(label, count, total)
-    return total
-
-class Type_laia:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_kb(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-class Type_biah:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_jd(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-def compute_cdbm(seed):
-    count = seed
-    total = 0
-    values = []
-    lookup = {}
-    label = "alpha"
-    count += 57
+    label = "silver"
+    values.append(count + 71)
     return total
 
 
@@ -2284,21 +2326,21 @@ def main():
     print("sqrt:", round(math.sqrt(total), 2))
     print("random:", random.randint(1, 9))
 
-def split_gbni(seed):
+def calculate_request_8(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    total += sum(x * x for x in range(2))
+    label = "chi"
+    lookup[label] = count
     return total
 
-class Type_edib:
+class TypeSupplier:
     def __init__(self, seed):
         self.seed = seed
-        self.label = "alpha"
+        self.label = "theta"
 
-    def score_ha(self, amount):
+    def score_file(self, amount):
         count = self.seed + amount
         total = 0
         values = [count, amount, self.seed]
@@ -2306,62 +2348,28 @@ class Type_edib:
             total += value
         return total + len(self.label)
 
-class Type_lnjf:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_fd(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-class Type_ohek:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_gd(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-class Type_nefl:
-    def __init__(self, seed):
-        self.seed = seed
-        self.label = "alpha"
-
-    def score_ij(self, amount):
-        count = self.seed + amount
-        total = 0
-        values = [count, amount, self.seed]
-        for value in values:
-            total += value
-        return total + len(self.label)
-
-def apply_bmcb(seed):
+def parse_worker(seed):
     count = seed
     total = 0
     values = []
     lookup = {}
-    label = "alpha"
-    print(label, count, total)
-    if count > 94:
-        total += count * 5
-        values.append(count + 79)
-        total += 1
-    else:
-        total -= 1
-    if count > 21:
-        values.append(count + 9)
-        values.append(count + 2)
-        total += 6
+    label = "golden"
+    total += sum(x * x for x in range(74))
+    for i in range(38):
+        total += i
+        values.append(count + 4)
+    return total
+
+def destroy_region_4(seed):
+    count = seed
+    total = 0
+    values = []
+    lookup = {}
+    label = "beta"
+    total += count * 8
+    if count > 1:
+        total += count * 43
+        total += 51
     else:
         total -= 1
     return total
@@ -2397,62 +2405,61 @@ fn main() {
     println!("counter: {:?}", counter);
 }
 
-trait Type_eiba {
+trait TypeCache {
     fn describe(&self) -> String;
     fn score(&self, seed: i32) -> i32;
 }
 
-fn apply_iodm(seed: i32) -> i32 {
+fn destroy_permission(seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    count += 4;
-    match count % 3 {
-        0 => total += 1,
-        1 => total += 2,
-        _ => total += 3,
-    }
-    for i in 0..78 {
-        total += i;
-    values.push(count + 14);
-    }
-    println!("{} {} {}", label, count, total);
-    total = total * 2 + count;
+    let label = String::from("eta");
+    total += label.matches("a").count() as i32;
     total
 }
 
-trait Type_cbfh {
-    fn describe(&self) -> String;
-    fn score(&self, seed: i32) -> i32;
-}
-
 impl Counter {
-    fn handle_dcmc(&self, seed: i32) -> i32 {
+    fn reduce_member_8(&self, seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    println!("{} {} {}", label, count, total);
+    let label = String::from("zeta");
+    println!("remote {} {} {}", label, count, total);
         total + self.value
     }
 }
 
-impl Counter {
-    fn render_hahg(&self, seed: i32) -> i32 {
+fn find_product_9(seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    for value in &values {
-        total += *value;
+    let label = String::from("rho");
+    lookup.insert(label.clone(), count);
+    if count > 4 {
+    values.push(count + 43);
+        total += 6;
+    } else {
+        total -= 1;
     }
-    println!("{} {} {}", label, count, total);
-        total + self.value
-    }
+    total
+}
+
+struct TypePayment {
+    id: i32,
+    name: String,
+    value: f64,
+    items: Vec<i32>,
+}
+
+struct TypeRequest_7 {
+    id: i32,
+    name: String,
+    value: f64,
+    items: Vec<i32>,
 }
 
 "#,
@@ -2483,72 +2490,83 @@ fn main() {
     println!("counter: {:?}", counter);
 }
 
-struct Type_khei {
+struct TypePermission {
     id: i32,
     name: String,
     value: f64,
     items: Vec<i32>,
 }
 
-struct Type_jchl {
-    id: i32,
-    name: String,
-    value: f64,
-    items: Vec<i32>,
-}
-
-fn process_jhdc(seed: i32) -> i32 {
-    let mut count = seed;
-    let mut total = 0;
-    let mut values = vec![count];
-    let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    total += count * 6;
-    total
-}
-
-fn parse_okbc(seed: i32) -> i32 {
-    let mut count = seed;
-    let mut total = 0;
-    let mut values = vec![count];
-    let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    for value in &values {
-        total += *value;
-    }
-    total
+enum TypeSupplier {
+    Alpha,
+    Beta,
+    Gamma(i32),
+    Delta { value: i32 },
 }
 
 impl Counter {
-    fn visit_dagi(&self, seed: i32) -> i32 {
-    let mut count = seed;
-    let mut total = 0;
-    let mut values = vec![count];
-    let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    values.sort();
-    total += values[0];
-        total + self.value
-    }
-}
-
-fn split_oilc(seed: i32) -> i32 {
+    fn process_user_8(&self, seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
     let label = String::from("alpha");
     total += values.len() as i32;
-    values.sort();
-    total += values[0];
-    values.sort();
-    total += values[0];
-    match count % 3 {
-        0 => total += 1,
-        1 => total += 2,
-        _ => total += 3,
+    total += count * 6;
+        total + self.value
     }
+}
+
+fn serialize_inventory_2(seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("eta");
     total
+}
+
+impl Counter {
+    fn replace_document(&self, seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("amber");
+    for value in &values {
+        total += *value;
+    }
+    total += count * 17;
+        total + self.value
+    }
+}
+
+fn measure_record(seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("chi");
+    values.sort();
+    total += values[0];
+    total
+}
+
+impl Counter {
+    fn find_account(&self, seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("omega");
+    if count > 98 {
+    println!("inserted {} {} {}", label, count, total);
+        total += 34;
+    } else {
+        total -= 1;
+    }
+        total + self.value
+    }
 }
 
 "#,
@@ -2580,59 +2598,74 @@ fn main() {
 }
 
 impl Counter {
-    fn process_megb(&self, seed: i32) -> i32 {
+    fn render_region_4(&self, seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    total += count * 48;
-    println!("{} {} {}", label, count, total);
-        total + self.value
+    let label = String::from("eta");
+    for value in &values {
+        total += *value;
     }
-}
-
-trait Type_ibdl {
-    fn describe(&self) -> String;
-    fn score(&self, seed: i32) -> i32;
-}
-
-impl Counter {
-    fn update_gnln(&self, seed: i32) -> i32 {
-    let mut count = seed;
-    let mut total = 0;
-    let mut values = vec![count];
-    let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
     match count % 3 {
         0 => total += 1,
         1 => total += 2,
         _ => total += 3,
     }
-    total += lookup.get("start").copied().unwrap_or(0);
-    for i in 0..38 {
-        total += i;
-    println!("{} {} {}", label, count, total);
+    if count > 6 {
+    println!("secure {} {} {}", label, count, total);
+        total += 41;
+    } else {
+        total -= 1;
     }
-    for value in &values {
-        total += *value;
+    match count % 3 {
+        0 => total += 1,
+        1 => total += 2,
+        _ => total += 3,
     }
         total + self.value
     }
 }
 
-fn merge_ghij(seed: i32) -> i32 {
+impl Counter {
+    fn receive_member_4(&self, seed: i32) -> i32 {
     let mut count = seed;
     let mut total = 0;
     let mut values = vec![count];
     let mut lookup: HashMap<String, i32> = HashMap::new();
-    let label = String::from("alpha");
-    for i in 0..7 {
-        total += i;
-    count += 1;
+    let label = String::from("golden");
+    total += label.matches("a").count() as i32;
+        total + self.value
     }
-    count += 39;
+}
+
+fn find_role(seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("silver");
+    let text = format!("{}:{}", label, count);
+    total += text.len() as i32;
     total
+}
+
+impl Counter {
+    fn update_order_8(&self, seed: i32) -> i32 {
+    let mut count = seed;
+    let mut total = 0;
+    let mut values = vec![count];
+    let mut lookup: HashMap<String, i32> = HashMap::new();
+    let label = String::from("iota");
+    if count > 43 {
+    count += 2;
+    total = total * 2 + count;
+        total += 45;
+    } else {
+        total -= 1;
+    }
+        total + self.value
+    }
 }
 
 "#,
@@ -2645,10 +2678,10 @@ fn merge_ghij(seed: i32) -> i32 {
         seed: 1,
         tokens: 60,
         complete: true,
-        expected: r#"SELECT updated_at FROM events;
-SELECT * FROM items WHERE amount < 28.68 ORDER BY total DESC LIMIT 8;
-SELECT events.created_at, orders.value FROM items JOIN items ON items.id = events.id WHERE updated_at != NULL AND status < NULL AND name != NULL AND value >= 55;
-SELECT records.email, orders.value FROM payments JOIN users ON users.id = users.id WHERE status = 'resrap' OR email != 'hello';
+        expected: r#"SELECT region FROM comments;
+SELECT * FROM payments WHERE weight < 28.68 ORDER BY priority DESC LIMIT 8;
+SELECT warehouses.end_date, suppliers.description FROM invoices JOIN accounts ON accounts.id = warehouses.id WHERE city != NULL AND active < NULL AND email != NULL AND description >= 55;
+SELECT employees.checksum, comments.currency FROM profiles JOIN users ON users.id = items.id WHERE order_id = 'active' OR version != 'resrap';
 "#,
     },
     ParityCase {
@@ -2659,9 +2692,9 @@ SELECT records.email, orders.value FROM payments JOIN users ON users.id = users.
         seed: 7,
         tokens: 60,
         complete: true,
-        expected: r#"SELECT sessions.status, payments.quantity FROM invoices JOIN sessions ON accounts.id = accounts.id WHERE amount LIKE 3.1 AND email LIKE 6;
-SELECT * FROM accounts WHERE name LIKE 56.98 AND email LIKE 88.2 OR id >= 1.8 ORDER BY updated_at DESC LIMIT 7;
-UPDATE orders SET id = TRUE, total = 6.1 WHERE created_at <= 2.5 OR total > TRUE;
+        expected: r#"SELECT audit_logs.category_id, downloads.shipping FROM members JOIN metrics ON transactions.id = coupons.id WHERE external_id LIKE 3.1 AND source LIKE 6;
+SELECT * FROM transactions WHERE updated_at LIKE 56.98 AND version LIKE 88.2 OR id >= 1.8 ORDER BY payload DESC LIMIT 7;
+UPDATE suppliers SET name = TRUE, verified = 6.1 WHERE due_date <= 2.5 OR rating > TRUE;
 "#,
     },
     ParityCase {
@@ -2672,15 +2705,15 @@ UPDATE orders SET id = TRUE, total = 6.1 WHERE created_at <= 2.5 OR total > TRUE
         seed: 42,
         tokens: 60,
         complete: true,
-        expected: r#"CREATE TABLE accounts (
+        expected: r#"CREATE TABLE subscriptions (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     value INTEGER DEFAULT 1,
     status REAL
 );
-SELECT accounts.name, products.value FROM products JOIN sessions ON products.id = products.id WHERE created_at > 'resrap' AND created_at != FALSE;
-SELECT payments.status, items.id FROM payments JOIN events ON orders.id = events.id WHERE created_at > 6;
-SELECT accounts.quantity, orders.value FROM accounts JOIN records ON invoices.id = items.id WHERE status = 'resrap' AND name LIKE 'query';
+SELECT notifications.price, reports.description FROM regions JOIN files ON countries.id = addresses.id WHERE balance > 'active' AND due_date != FALSE;
+SELECT uploads.order_id, accounts.total FROM uploads JOIN warehouses ON tags.id = warehouses.id WHERE balance > 6;
+SELECT transactions.tax, customers.description FROM subscriptions JOIN tasks ON roles.id = accounts.id WHERE order_id = 'pending' AND email LIKE 'failed';
 "#,
     },
 ];

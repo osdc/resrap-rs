@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-10-22
+
+### Added
+
+- First stable release of the Rust port, covering the single-threaded and
+  multithreaded APIs, embedded templates, codebase generation and Go seed
+  compatibility for inline grammars.
+
+### Changed
+
+- Expanded the embedded templates' `@words` / `@keywords` lists with status,
+  message, action and domain vocabulary, and replaced random four-letter
+  identifier suffixes with word-based names such as `validate_order` and
+  `TypeInvoice`. Generated code is more varied and readable.
+- Wired previously unused word lists into template output (labels, messages and
+  SQL status values) and added an HTML row-status list.
+- Embedded template fixtures in `tests/data/go_parity_data.rs` are now Rust
+  regression snapshots rather than Go byte-parity cases. Inline grammar parity
+  with the Go package is unchanged.
+
 ## [0.2.1] - 2026-10-22
 
 ### Changed

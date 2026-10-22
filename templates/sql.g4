@@ -1,7 +1,7 @@
 // SQL template with DDL, DML, joins, grouping, ordering and transactions.
-@words table  = users, items, orders, events, records, accounts, products, sessions, invoices, payments
-@words column = id, name, value, status, total, created_at, updated_at, email, amount, quantity
-@words text   = hello, world, resrap, generated, code, sql, database, query, active, pending
+@words table  = users, items, orders, events, records, accounts, products, sessions, invoices, payments, customers, suppliers, categories, tags, comments, reviews, shipments, inventory, warehouses, employees, departments, projects, tasks, tickets, messages, notifications, subscriptions, transactions, refunds, coupons, addresses, countries, regions, reports, audit_logs, metrics, logs, files, documents, images, groups, members, roles, permissions, settings, profiles, activities, downloads, uploads
+@words column = id, name, value, status, total, created_at, updated_at, email, amount, quantity, price, cost, currency, description, title, slug, category_id, user_id, order_id, sku, stock, active, verified, priority, score, rating, count, balance, due_date, start_date, end_date, phone, country, city, region, notes, metadata, payload, version, checksum, source, destination, duration, attempts, error_code, external_id, parent_id, position, weight, discount, tax, shipping, billing, is_deleted
+@words text   = hello, world, resrap, generated, code, sql, database, query, active, pending, archived, draft, published, hidden, verified, disabled, pending_review, in_progress, completed, cancelled, refunded, shipped, delivered, processing, approved, rejected, failed, succeeded, retry, retry_later, invalid_input, not_found, access_denied, rate_limited, hello_world, build_started, task_complete
 @words digit  = 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 program: statement^;

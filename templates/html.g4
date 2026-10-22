@@ -1,5 +1,6 @@
 // HTML template with navigation, sections, cards, forms, tables and lists.
-@words msg = hello, world, resrap, generated, code, html, markup, grammar, product, feature, docs, team
+@words msg = hello, world, resrap, generated, code, html, markup, grammar, product, feature, docs, team, welcome, features, pricing, documentation, contact, about, service, customer, solution, workflow, performance, reliability, security, integration, support, community, tutorial, example, overview, details, benefits, resources, insights, updates, newsletter, subscribe, learn_more, get_started, read_more, sign_up, log_in, privacy, terms, dashboard, analytics, settings, profile, account, project, roadmap, changelog, release_notes, quick_start, best_practices, case_study, success_story, open_source, cloud_native, real_time, enterprise_ready, built_to_scale
+@words status = active, pending, archived, draft, published, hidden, sold_out, in_stock, backordered, disabled, verified, featured
 @words digit = 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 program: '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n    <title>Resrap generated page</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n' nav element^ footer '</body>\n</html>\n';
@@ -31,7 +32,7 @@ item: '        <li>' msg '</li>\n';
 
 form: '    <form action="#" method="post">\n        <label for="name">Name</label>\n        <input id="name" name="name" type="text" placeholder="' msg '">\n        <label for="email">Email</label>\n        <input id="email" name="email" type="email" placeholder="you@example.com">\n        <button type="submit">Submit</button>\n    </form>\n\n';
 
-table: '    <table>\n        <thead>\n            <tr><th>Name</th><th>Value</th><th>Status</th></tr>\n        </thead>\n        <tbody>\n            <tr><td>' msg '</td><td>' number '</td><td>active</td></tr>\n            <tr><td>' msg '</td><td>' number '</td><td>pending</td></tr>\n        </tbody>\n    </table>\n\n';
+table: '    <table>\n        <thead>\n            <tr><th>Name</th><th>Value</th><th>Status</th></tr>\n        </thead>\n        <tbody>\n            <tr><td>' msg '</td><td>' number '</td><td>' status '</td></tr>\n            <tr><td>' msg '</td><td>' number '</td><td>' status '</td></tr>\n        </tbody>\n    </table>\n\n';
 
 article: '    <article class="post">\n        <h2>' msg '</h2>\n        <p>' msg '</p>\n        <p>' msg '</p>\n        <a href="#read-more">Read more</a>\n    </article>\n\n';
 
