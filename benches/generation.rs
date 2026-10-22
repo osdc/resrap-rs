@@ -90,53 +90,56 @@ fn main() {
         sample.len()
     );
 
-    let workers = 8;
-    let jobs = 50_000;
-    let mut mt = ResrapMT::new(workers, 4096);
-    templates::load(&mut mt, "c").unwrap();
-    mt.start_resrap();
-    let channel = mt.get_code_channel();
+    for workers in [1, 2, 4, 8] {
+        let jobs = 20_000;
+        let mut mt = ResrapMT::new(workers, 4096);
+        templates::load(&mut mt, "c").unwrap();
+        mt.start_resrap();
+        let channel = mt.get_code_channel();
 
-    let start = Instant::now();
-    for i in 0..jobs {
-        mt.generate_with_seeded(
-            &format!("job-{i}"),
-            "c",
-            "program",
-            (i as u64) % 97 + 1,
-            200,
-        )
-        .unwrap();
+        let start = Instant::now();
+        for i in 0..jobs {
+            mt.generate_with_seeded(
+                &format!("job-{i}"),
+                "c",
+                "program",
+                (i as u64) % 97 + 1,
+                200,
+            )
+            .unwrap();
+        }
+        for _ in 0..jobs {
+            black_box(channel.recv().unwrap());
+        }
+        let elapsed = start.elapsed();
+        mt.shutdown_resrap();
+        line(&format!("MT pool={workers}, 200 tokens"), jobs, elapsed);
     }
-    for _ in 0..jobs {
-        black_box(channel.recv().unwrap());
-    }
-    let elapsed = start.elapsed();
-    mt.shutdown_resrap();
-    line(&format!("MT pool={workers}, 200 tokens"), jobs, elapsed);
 
-    let mut mt = ResrapMT::new(workers, 4096);
-    templates::load(&mut mt, "c").unwrap();
-    mt.start_resrap();
-    let channel = mt.get_code_channel();
-    let jobs = 10_000;
-    let start = Instant::now();
-    for i in 0..jobs {
-        mt.generate_complete_with_seeded(
-            &format!("complete-{i}"),
-            "c",
-            "program",
-            (i as u64) % 97 + 1,
-            500,
-        )
-        .unwrap();
+    for workers in [1, 2, 4, 8] {
+        let jobs = 5_000;
+        let mut mt = ResrapMT::new(workers, 4096);
+        templates::load(&mut mt, "c").unwrap();
+        mt.start_resrap();
+        let channel = mt.get_code_channel();
+        let start = Instant::now();
+        for i in 0..jobs {
+            mt.generate_complete_with_seeded(
+                &format!("complete-{i}"),
+                "c",
+                "program",
+                (i as u64) % 97 + 1,
+                500,
+            )
+            .unwrap();
+        }
+        for _ in 0..jobs {
+            black_box(channel.recv().unwrap());
+        }
+        let elapsed = start.elapsed();
+        mt.shutdown_resrap();
+        line(&format!("MT pool={workers}, complete 500"), jobs, elapsed);
     }
-    for _ in 0..jobs {
-        black_box(channel.recv().unwrap());
-    }
-    let elapsed = start.elapsed();
-    mt.shutdown_resrap();
-    line(&format!("MT pool={workers}, complete 500"), jobs, elapsed);
 
     println!();
 }

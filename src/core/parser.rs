@@ -12,6 +12,15 @@ use crate::core::{
 /// A node returned from parsing a rule or a bracketed group.
 type RuleNode = Arc<Mutex<SyntaxNode>>;
 
+/// Out-of-range lookups used to return a fresh empty token. Borrowing a shared
+/// one avoids cloning a `Token` (and its `String`) on every parser lookup.
+static EMPTY_TOKEN: Token = Token {
+    typ: TokenType::Padding,
+    text: String::new(),
+    line: 0,
+    col: 0,
+};
+
 pub struct Parser {
     pub func_ptr: u32,
     pub print_ptr: u32,
@@ -55,27 +64,18 @@ impl Parser {
         self.func_ptr
     }
 
-    fn curr(&self) -> Token {
-        if self.index < self.tokens.len() {
-            self.tokens[self.index].clone()
-        } else {
-            Token {
-                typ: TokenType::Padding,
-                text: String::new(),
-                line: 0,
-                col: 0,
-            }
-        }
+    fn curr(&self) -> &Token {
+        self.tokens.get(self.index).unwrap_or(&EMPTY_TOKEN)
     }
 
-    fn err_at(&mut self, token: &Token, msg: String) {
-        self.errors
-            .push(format!("line {}:{}: {}", token.line, token.col, msg));
+    fn err_at(&mut self, line: usize, col: usize, msg: String) {
+        self.errors.push(format!("line {}:{}: {}", line, col, msg));
     }
 
     fn err_here(&mut self, msg: String) {
         let token = self.curr();
-        self.err_at(&token, msg);
+        let (line, col) = (token.line, token.col);
+        self.err_at(line, col, msg);
     }
 
     fn match_token(word: TokenType, expected: &[TokenType]) -> bool {
@@ -118,7 +118,10 @@ impl Parser {
     }
 
     fn parse_subject(&mut self) {
-        let subject = self.curr();
+        let (subject_text, subject_line, subject_col) = {
+            let subject = self.curr();
+            (subject.text.clone(), subject.line, subject.col)
+        };
 
         if self.expect(
             &[TokenType::Identifier],
@@ -130,11 +133,12 @@ impl Parser {
             return;
         }
 
-        let id = self.get_index(&subject.text);
+        let id = self.get_index(&subject_text);
         if *self.def_check.get(&id).unwrap_or(&false) {
             self.err_at(
-                &subject,
-                format!("multiple definitions for {}", subject.text),
+                subject_line,
+                subject_col,
+                format!("multiple definitions for {}", subject_text),
             );
         }
 
@@ -178,10 +182,11 @@ impl Parser {
         let mut start_buffer: Option<Arc<Mutex<SyntaxNode>>> = None;
 
         while self.index < self.tokens.len() {
-            let token = self.curr();
-            match token.typ {
+            let token_type = self.curr().typ;
+            match token_type {
                 TokenType::Identifier => {
-                    let pointer_id = self.get_index(&token.text);
+                    let text = self.curr().text.clone();
+                    let pointer_id = self.get_index(&text);
                     let ptr = self.get_func_ptr();
                     let node = self.graph.force_get_node(ptr, NodeType::POINTER);
                     {
@@ -203,13 +208,14 @@ impl Parser {
                     buffer_node = jump_node;
                 }
                 TokenType::Character | TokenType::Regex => {
+                    let text = self.curr().text.clone();
                     let index = self.get_print_ptr();
-                    self.charmap.insert(index, token.text.clone());
+                    self.charmap.insert(index, text.clone());
 
-                    let node_type = if token.typ == TokenType::Character {
+                    let node_type = if token_type == TokenType::Character {
                         NodeType::CH
                     } else {
-                        self.regexhandler.cache_regex(&token.text);
+                        self.regexhandler.cache_regex(&text);
                         NodeType::RX
                     };
 
@@ -368,24 +374,26 @@ impl Parser {
         }
 
         if self.tokens[self.index].typ == TokenType::Probability {
-            let token = self.tokens[self.index].clone();
-            let num = token.text.as_str();
+            let (line, col, num) = {
+                let token = &self.tokens[self.index];
+                (token.line, token.col, token.text.as_str())
+            };
             match num.parse::<f32>() {
                 Ok(numf) => {
                     if numf < 0.0 {
-                        self.err_at(&token, "negative probability found".to_string());
+                        self.err_at(line, col, "negative probability found".to_string());
                         self.index -= 1;
                         return 0.0;
                     }
                     if !numf.is_finite() {
-                        self.err_at(&token, format!("invalid probability {:?}", num));
+                        self.err_at(line, col, format!("invalid probability {:?}", num));
                         self.index -= 1;
                         return 0.0;
                     }
                     return numf;
                 }
                 Err(err) => {
-                    self.err_at(&token, format!("invalid probability {:?}: {}", num, err));
+                    self.err_at(line, col, format!("invalid probability {:?}: {}", num, err));
                     self.index -= 1;
                     return 0.0;
                 }

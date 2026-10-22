@@ -6,12 +6,14 @@ use std::{
 use crate::core::{graph::NodeType, prng::PRNG, regex::Regexer};
 
 pub struct FrozenSyntaxGraph {
-    pub node_ref: HashMap<u32, Arc<FrozenSyntaxNode>>,
+    pub node_ref: HashMap<u32, FrozenSyntaxNode>,
     pub name_map: HashMap<String, u32>,
     pub print_map: HashMap<u32, String>,
     pub regexer: Regexer,
-    /// Rule id -> words emitted instead of expanding the rule.
-    pub words: RwLock<HashMap<u32, Vec<String>>>,
+    /// Rule id -> words emitted instead of expanding the rule. The map is
+    /// snapshot behind an `Arc` so a walk can clone it once and then read it
+    /// without touching the lock on every pointer node.
+    pub words: RwLock<Arc<HashMap<u32, Vec<String>>>>,
     /// Rule id -> the end node of that rule.
     pub rule_ends: HashMap<u32, u32>,
 }
@@ -32,7 +34,7 @@ pub struct FrozenSyntaxEdge {
 
 impl FrozenSyntaxGraph {
     pub fn new(
-        node_ref: HashMap<u32, Arc<FrozenSyntaxNode>>,
+        node_ref: HashMap<u32, FrozenSyntaxNode>,
         name_map: HashMap<String, u32>,
         print_map: HashMap<u32, String>,
         regexer: Regexer,
@@ -44,7 +46,7 @@ impl FrozenSyntaxGraph {
             name_map,
             print_map,
             regexer,
-            words: RwLock::new(words),
+            words: RwLock::new(Arc::new(words)),
             rule_ends,
         }
     }
@@ -57,11 +59,13 @@ impl FrozenSyntaxGraph {
             .copied()
             .ok_or_else(|| format!("rule '{}' not found", rule))?;
         let mut guard = self.words.write().unwrap();
+        let mut next = (**guard).clone();
         if words.is_empty() {
-            guard.remove(&id);
+            next.remove(&id);
         } else {
-            guard.insert(id, words.to_vec());
+            next.insert(id, words.to_vec());
         }
+        *guard = Arc::new(next);
         Ok(())
     }
 
@@ -73,7 +77,7 @@ impl FrozenSyntaxGraph {
         self.walk(prng, start, tokens, true)
     }
 
-    fn walk(&self, mut prng: PRNG, start: &str, tokens: usize, complete: bool) -> String {
+    fn walk(&self, prng: PRNG, start: &str, tokens: usize, complete: bool) -> String {
         if tokens == 0 {
             return String::new();
         }
@@ -83,18 +87,43 @@ impl FrozenSyntaxGraph {
             None => return String::new(),
         };
 
+        self.walk_id(prng, start_id, tokens, complete)
+    }
+
+    /// Walks a graph starting at an already-resolved rule id. The worker pool
+    /// resolves the id at submission time to avoid a name lookup and grammar
+    /// map lock for every job.
+    pub(crate) fn walk_graph_id(
+        &self,
+        prng: PRNG,
+        start_id: u32,
+        tokens: usize,
+        complete: bool,
+    ) -> String {
+        self.walk_id(prng, start_id, tokens, complete)
+    }
+
+    fn walk_id(&self, mut prng: PRNG, start_id: u32, tokens: usize, complete: bool) -> String {
+        if tokens == 0 {
+            return String::new();
+        }
+
+        // One snapshot per walk: add_words may replace the map concurrently,
+        // but generation keeps a stable view without per-pointer locking.
+        let words = {
+            let guard = self.words.read().unwrap();
+            Arc::clone(&guard)
+        };
+
         // A rule can itself be a word list, e.g. @words identifier = ...
+        if let Some(list) = words.get(&start_id)
+            && !list.is_empty()
         {
-            let words = self.words.read().unwrap();
-            if let Some(list) = words.get(&start_id)
-                && !list.is_empty()
-            {
-                return list[prng.random_int(0, list.len())].clone();
-            }
+            return list[prng.random_int(0, list.len())].clone();
         }
 
         let starting_node = match self.node_ref.get(&start_id) {
-            Some(node) => Arc::clone(node),
+            Some(node) => node,
             None => return String::new(),
         };
 
@@ -104,7 +133,10 @@ impl FrozenSyntaxGraph {
             .saturating_add(10_000)
             .max(10_000);
 
-        let mut result = String::new();
+        // Most terminals average well under 24 bytes of output. Reserving up
+        // front avoids repeated doubling and keeps retained output compact.
+        let capacity = tokens.saturating_mul(24).min(64 * 1024 * 1024);
+        let mut result = String::with_capacity(capacity);
         let mut jump_stack: Vec<u32> = Vec::new();
         let mut printed_tokens: usize = 0;
         let mut current = starting_node;
@@ -123,7 +155,7 @@ impl FrozenSyntaxGraph {
             match current.typ {
                 NodeType::CH => {
                     if let Some(content) = self.print_map.get(&current.id) {
-                        result.push_str(&unescape_string(content));
+                        append_unescaped(&mut result, content);
                     }
                     printed_tokens += 1;
                 }
@@ -140,7 +172,7 @@ impl FrozenSyntaxGraph {
                     if !complete || printed_tokens < tokens {
                         match self.node_ref.get(&current.pointer) {
                             Some(target) => {
-                                current = Arc::clone(target);
+                                current = target;
                                 continue;
                             }
                             None => return result,
@@ -150,23 +182,20 @@ impl FrozenSyntaxGraph {
                 NodeType::POINTER => {
                     // If the target rule has a word list, emit a word directly
                     // and return to the caller instead of traversing its rule.
-                    let word = {
-                        let words = self.words.read().unwrap();
-                        words.get(&current.pointer).and_then(|list| {
-                            if list.is_empty() {
-                                None
-                            } else {
-                                Some(list[prng.random_int(0, list.len())].clone())
-                            }
-                        })
-                    };
+                    let word = words.get(&current.pointer).and_then(|list| {
+                        if list.is_empty() {
+                            None
+                        } else {
+                            Some(list[prng.random_int(0, list.len())].clone())
+                        }
+                    });
                     if let Some(word) = word {
                         result.push_str(&word);
                         printed_tokens += 1;
                         match current.options.first() {
                             Some(next) => match self.node_ref.get(&next.node) {
                                 Some(node) => {
-                                    current = Arc::clone(node);
+                                    current = node;
                                     continue;
                                 }
                                 None => return result,
@@ -182,7 +211,7 @@ impl FrozenSyntaxGraph {
                     jump_stack.push(next);
                     match self.node_ref.get(&current.pointer) {
                         Some(target) => {
-                            current = Arc::clone(target);
+                            current = target;
                             continue;
                         }
                         None => return result,
@@ -192,7 +221,7 @@ impl FrozenSyntaxGraph {
                     if let Some(target) = jump_stack.pop() {
                         match self.node_ref.get(&target) {
                             Some(node) => {
-                                current = Arc::clone(node);
+                                current = node;
                                 continue;
                             }
                             None => return result,
@@ -202,9 +231,9 @@ impl FrozenSyntaxGraph {
                 _ => {}
             }
 
-            match self.choice(&current, &mut prng) {
+            match self.choice(current, &mut prng) {
                 Some(next) => match self.node_ref.get(&next) {
-                    Some(node) => current = Arc::clone(node),
+                    Some(node) => current = node,
                     None => return result,
                 },
                 None => return result,
@@ -240,9 +269,9 @@ impl FrozenSyntaxGraph {
     }
 }
 
-/// Handles escape sequences in generated literals.
-pub fn unescape_string(s: &str) -> String {
-    let mut result = String::with_capacity(s.len());
+/// Appends a literal, decoding its escape sequences directly into `result`.
+/// This avoids allocating a temporary string for every terminal node.
+fn append_unescaped(result: &mut String, s: &str) {
     let mut chars = s.chars().peekable();
 
     while let Some(ch) = chars.next() {
@@ -269,7 +298,13 @@ pub fn unescape_string(s: &str) -> String {
             result.push(ch);
         }
     }
+}
 
+/// Handles escape sequences in generated literals.
+#[cfg(test)]
+pub fn unescape_string(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    append_unescaped(&mut result, s);
     result
 }
 

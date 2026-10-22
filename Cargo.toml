@@ -1,6 +1,6 @@
 [package]
 name = "resrap-rs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.85"
 description = "Seedable, grammar-based code and text generation"
@@ -13,5 +13,10 @@ categories = ["compilers", "development-tools", "text-processing"]
 
 [[bench]]
 name = "generation"
+harness = false
+test = false
+
+[[bench]]
+name = "long_generation"
 harness = false
 test = false

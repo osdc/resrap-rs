@@ -264,7 +264,7 @@ fn main() -> Result<(), String> {
 
 Each job returns a `CodeGenRes { code, id }`. IDs are caller-supplied and must
 be unique if you need to map results back to requests. Generation results are
-buffered in an unbounded dispatcher, so workers never block on a slow result
+buffered in an unbounded channel, so workers never block on a slow result
 consumer. Submitting after shutdown returns `ERR_SHUT_DOWN`.
 
 See [docs/ResrapMT.md](docs/ResrapMT.md) for the full API.
@@ -285,22 +285,88 @@ similar.
 
 ## Benchmarks
 
-Measured with `cargo bench --bench generation` on the development machine used
-for this release (release profile, 8 logical cores). Numbers are indicative;
-run the benchmark on your own hardware for comparable figures.
+Measured on the development machine used for this release (release profile,
+8-worker MT runs). Numbers are indicative; run the benchmarks on your own
+hardware for comparable figures. The interesting workload for sustained
+generation is long output, not 200-token snippets.
+
+### Long outputs
+
+`cargo bench --bench long_generation`:
+
+| Workload | Rust | Go reference |
+| -------- | ---: | -----------: |
+| Seeded, 100K tokens | 8.48M tok/s (166 MiB/s) | 6.22M tok/s (122 MiB/s) |
+| Complete, 100K tokens | 8.50M tok/s (167 MiB/s) | 6.69M tok/s (131 MiB/s) |
+| Seeded, 1M tokens | **8.33M tok/s** (0.120 s, 163 MiB/s) | 8.07M tok/s (0.124 s, 158 MiB/s) |
+| Complete, 1M tokens | **8.46M tok/s** (0.118 s, 165 MiB/s) | 8.12M tok/s (0.123 s, 159 MiB/s) |
+| 8 workers, 32 x 100K tokens | **40.0M tok/s** (784 MiB/s) | 33.0M tok/s (645 MiB/s) |
+| 8 workers, 8 x 1M tokens | **38.3M tok/s** (748 MiB/s) | 30.9M tok/s (605 MiB/s) |
+
+A 1M-token C output is about 19.6 MiB. Per-token throughput stays almost flat
+from 10K to 1M tokens, so time scales linearly with the token budget. Go's
+shorter long-output runs vary more between samples because of GC; both
+implementations settle near 8M tokens/s at 1M tokens.
+
+These runs exposed the main long-output bottleneck: every graph transition was
+cloning and dropping an `Arc` around the target node, which turned millions of
+transitions into atomic refcount traffic across worker threads. Frozen graph
+nodes are now stored directly and walks borrow them, eliminating that traffic.
+
+### Short outputs
+
+`cargo bench --bench generation`:
 
 | Benchmark | Rust | Go reference |
 | --------- | ---: | -----------: |
-| Parse embedded C template | 0.158 ms/iter (6,324 ops/s) | 0.139 ms/iter (7,197 ops/s) |
-| Seeded generation, 200 tokens | 0.028 ms/iter (35,875 ops/s) | 0.028 ms/iter (36,332 ops/s) |
-| Complete generation, 500 tokens | 0.070 ms/iter (14,206 ops/s) | 0.066 ms/iter (15,255 ops/s) |
-| Random generation, 200 tokens | 0.028 ms/iter (35,426 ops/s) | 0.025 ms/iter (39,903 ops/s) |
-| Generation throughput | 148 MB/s (4,368 B/output) | 175 MB/s (4,368 B/output) |
-| Worker pool (8), 200 tokens | 50,249 jobs/s | 108,352 jobs/s |
-| Worker pool (8), complete 500 | 17,195 jobs/s | 38,396 jobs/s |
+| Parse embedded C template | 0.117 ms/iter (8,524 ops/s) | 0.169 ms/iter (5,901 ops/s) |
+| Seeded generation, 200 tokens | 0.025 ms/iter (40,306 ops/s) | 0.027 ms/iter (36,993 ops/s) |
+| Complete generation, 500 tokens | 0.062 ms/iter (16,004 ops/s) | 0.076 ms/iter (13,241 ops/s) |
+| Random generation, 200 tokens | 0.025 ms/iter (40,078 ops/s) | 0.026 ms/iter (39,104 ops/s) |
+| Generation throughput | 165 MB/s (4,368 B/output) | 120 MB/s (4,368 B/output) |
+| Worker pool (8), 200 tokens | 188,053 jobs/s | 118,396 jobs/s |
+| Worker pool (8), complete 500 | 76,232 jobs/s | 36,099 jobs/s |
 
-The benchmark harness is dependency-free and lives in
-[`benches/generation.rs`](benches/generation.rs).
+Worker-pool scaling for 200-token jobs:
+
+| Workers | Rust | Go |
+| ------: | ---: | ---: |
+| 1 | 36,062 jobs/s | — |
+| 2 | 70,832 jobs/s | — |
+| 4 | 123,170 jobs/s | — |
+| 8 | 188,053 jobs/s | 118,396 jobs/s |
+
+Worker-pool scaling for complete 500-token jobs:
+
+| Workers | Rust | Go |
+| ------: | ---: | ---: |
+| 1 | 15,208 jobs/s | — |
+| 2 | 29,609 jobs/s | — |
+| 4 | 51,487 jobs/s | — |
+| 8 | 76,232 jobs/s | 36,099 jobs/s |
+
+### Memory
+
+`cargo run --release --example memory` reports `VmRSS` and peak RSS on Linux.
+Typical figures on the same machine:
+
+| Scenario | Rust RSS | Go reference |
+| -------- | -------: | -----------: |
+| All ten templates loaded | 3.4 MiB | 4.4 MiB |
+| 10,000 outputs retained (40.8 MiB payload) | 53 MiB | 81 MiB |
+| One 1M-token output retained (19.6 MiB payload) | 26 MiB | 50 MiB |
+| 10,000 MT jobs submitted, consumer idle | 34 MiB | 59 MiB |
+| After dropping/draining outputs | 6 MiB | 60 MiB |
+
+The RSS after dropping is allocator-dependent: Rust returns most of the memory
+to the OS on this workload, while the Go runtime keeps its heap reserved. Both
+implementations buffer MT results without bound, matching the reference
+behaviour; a slow consumer can therefore grow memory by the size of the
+generated output it has not read yet.
+
+The benchmark harnesses are dependency-free and live in
+[`benches/generation.rs`](benches/generation.rs) and
+[`benches/long_generation.rs`](benches/long_generation.rs).
 
 ## Documentation
 
@@ -317,6 +383,8 @@ cargo fmt --all --check
 cargo clippy --all-targets -- -D warnings
 cargo test
 cargo bench --bench generation
+cargo bench --bench long_generation
+cargo run --release --example memory
 cargo doc --no-deps
 ```
 

@@ -18,8 +18,8 @@ let mut resrap = ResrapMT::new(8, 4096);
 ```
 
 - `pool_size` is the number of worker threads. Values below 1 are clamped to 1.
-- `wait_queue_size` is the capacity of the pending-job queue. Values below 1
-  are clamped to 1.
+- `wait_queue_size` is the total capacity of the pending-job queues. It is
+  split evenly across workers. Values below 1 are clamped to 1.
 
 Workers are not started until `start_resrap()` is called.
 
@@ -117,9 +117,11 @@ every dispatched result has been drained.
 
 ## Performance notes
 
-Grammar graphs are immutable after parsing. Workers share `Arc<RwLock<_>>`
-access and each job creates its own PRNG, so generation is independent and
-deterministic per seed. The pending-job queue provides backpressure; the result
+Grammar graphs are immutable after parsing. Each worker has its own bounded job
+queue, so job handoff does not serialise on a shared receiver. The grammar and
+start rule are resolved at submission time and the worker holds a shared graph
+snapshot; each job creates its own PRNG, so generation is independent and
+deterministic per seed. The pending-job queues provide backpressure; the result
 buffer does not.
 
 See the root [README](../README.md#benchmarks) for measured single-threaded and

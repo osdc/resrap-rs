@@ -109,68 +109,56 @@ impl SyntaxGraph {
     }
 
     pub fn freeze(self) -> FrozenSyntaxGraph {
-        // Step 1: create all nodes without edges.
-        let mut frozen_nodes: HashMap<u32, Arc<FrozenSyntaxNode>> = HashMap::new();
+        // Create every node once, then fill edges by id in a second pass. The
+        // owned nodes can be mutated in place, avoiding both a duplicate graph
+        // allocation and per-token atomic refcount traffic during walks.
+        let mut frozen_nodes: HashMap<u32, FrozenSyntaxNode> =
+            HashMap::with_capacity(self.node_ref.len());
 
         for (&id, node_arc) in &self.node_ref {
             let node_guard = node_arc.lock().unwrap();
             frozen_nodes.insert(
                 id,
-                Arc::new(FrozenSyntaxNode {
+                FrozenSyntaxNode {
                     id: node_guard.id,
                     typ: node_guard.typ,
                     pointer: node_guard.pointer,
                     cumulative_frequency: node_guard.cumulative_frequency.clone(),
-                    options: vec![], // filled in step 2
-                }),
+                    options: Vec::new(),
+                },
             );
         }
 
-        // Step 2: rebuild with filled options.
-        let mut filled_nodes: HashMap<u32, Arc<FrozenSyntaxNode>> = HashMap::new();
-
         for (&id, node_arc) in &self.node_ref {
-            // Collect target handles while holding the lock only briefly.
-            // Locking the target inside this block would deadlock on self-edges
+            // Clone target handles while holding the source lock only briefly.
+            // Locking a target inside this block would deadlock on self-edges
             // such as `item*` / `item+`.
-            let (node_id, typ, pointer, cumulative_frequency, targets) = {
+            let targets = {
                 let node_guard = node_arc.lock().unwrap();
-                (
-                    node_guard.id,
-                    node_guard.typ,
-                    node_guard.pointer,
-                    node_guard.cumulative_frequency.clone(),
-                    node_guard
-                        .options
-                        .iter()
-                        .map(|edge| Arc::clone(&edge.node))
-                        .collect::<Vec<_>>(),
-                )
+                node_guard
+                    .options
+                    .iter()
+                    .map(|edge| Arc::clone(&edge.node))
+                    .collect::<Vec<_>>()
             };
 
             let options = targets
                 .into_iter()
                 .filter_map(|target| {
                     let target_id = target.lock().unwrap().id;
-                    let _ = frozen_nodes.get(&target_id)?;
-                    Some(FrozenSyntaxEdge { node: target_id })
+                    frozen_nodes
+                        .contains_key(&target_id)
+                        .then_some(FrozenSyntaxEdge { node: target_id })
                 })
                 .collect::<Vec<_>>();
 
-            filled_nodes.insert(
-                id,
-                Arc::new(FrozenSyntaxNode {
-                    id: node_id,
-                    typ,
-                    pointer,
-                    cumulative_frequency,
-                    options,
-                }),
-            );
+            if let Some(node) = frozen_nodes.get_mut(&id) {
+                node.options = options;
+            }
         }
 
         FrozenSyntaxGraph::new(
-            filled_nodes,
+            frozen_nodes,
             self.name_map,
             self.print_map,
             self.regexer,

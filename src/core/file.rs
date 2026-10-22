@@ -1,8 +1,8 @@
 use crate::core::{frozen_graph::FrozenSyntaxGraph, graph_builder::GraphBuilder};
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
 pub struct Lang {
-    graph: Option<FrozenSyntaxGraph>,
+    graph: Option<Arc<FrozenSyntaxGraph>>,
 }
 
 impl Lang {
@@ -11,7 +11,13 @@ impl Lang {
     }
 
     pub fn get_graph(&self) -> Option<&FrozenSyntaxGraph> {
-        self.graph.as_ref()
+        self.graph.as_deref()
+    }
+
+    /// Returns a cheap, shared snapshot of the parsed graph. Used by the
+    /// worker pool so each job does not need to re-acquire the grammar map.
+    pub(crate) fn get_graph_arc(&self) -> Option<Arc<FrozenSyntaxGraph>> {
+        self.graph.clone()
     }
 
     pub fn parse_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<(), String> {
@@ -25,7 +31,7 @@ impl Lang {
     pub fn parse_string(&mut self, data: &str) -> Result<(), String> {
         let mut gb = GraphBuilder::new();
         gb.start_generation(data)?;
-        self.graph = Some(gb.take_graph());
+        self.graph = Some(Arc::new(gb.take_graph()));
         Ok(())
     }
 }
