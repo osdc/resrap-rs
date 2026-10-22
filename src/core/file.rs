@@ -1,41 +1,5 @@
-use crate::core::frozen_graph::FrozenSyntaxGraph;
-use crate::core::graph_builder::GraphBuilder;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use crate::core::{frozen_graph::FrozenSyntaxGraph, graph_builder::GraphBuilder};
 use std::path::Path;
-
-/// ParseFile reads a file and returns statements split by lines ending with ';',
-/// skipping lines starting with "//".
-fn parse_file<P: AsRef<Path>>(filename: P) -> Result<Vec<String>, std::io::Error> {
-    let file = File::open(filename)?;
-    let reader = BufReader::new(file);
-
-    let mut statements = Vec::new();
-    let mut current = String::new();
-
-    for line in reader.lines() {
-        let line = line?;
-        let line = line.trim();
-
-        // Skip comment or empty lines
-        if line.starts_with("//") || line.is_empty() {
-            continue;
-        }
-
-        // Accumulate this line
-        current.push_str(line);
-        current.push(' ');
-
-        // If line ends with ';', finalize statement
-        if line.ends_with(';') {
-            let stmt = current.trim().to_string();
-            statements.push(stmt);
-            current.clear();
-        }
-    }
-
-    Ok(statements)
-}
 
 pub struct Lang {
     graph: Option<FrozenSyntaxGraph>,
@@ -51,20 +15,16 @@ impl Lang {
     }
 
     pub fn parse_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<(), String> {
-        let lines = parse_file(filename).map_err(|e| format!("Failed to read file: {}", e))?;
-
-        let mut gb = GraphBuilder::new();
-        let content = lines.join("");
-        gb.start_generation(content)?;
-
-        self.graph = Some(gb.take_graph());
-        Ok(())
+        // The scanner understands comments and @words directives, so read the
+        // file as a whole instead of reassembling statements line by line.
+        let data = std::fs::read_to_string(filename)
+            .map_err(|err| format!("Failed to read file: {}", err))?;
+        self.parse_string(&data)
     }
 
-    pub fn parse_string(&mut self, data: String) -> Result<(), String> {
+    pub fn parse_string(&mut self, data: &str) -> Result<(), String> {
         let mut gb = GraphBuilder::new();
         gb.start_generation(data)?;
-
         self.graph = Some(gb.take_graph());
         Ok(())
     }
@@ -73,5 +33,33 @@ impl Lang {
 impl Default for Lang {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_whole_file_with_comments_and_words() {
+        let dir = std::env::temp_dir().join(format!("resrap-file-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("grammar.g4");
+        std::fs::write(
+            &path,
+            "# a comment\n@words identifier = hello, world\nprogram: identifier ';';\n",
+        )
+        .unwrap();
+
+        let mut lang = Lang::new();
+        lang.parse_file(&path).unwrap();
+        assert!(lang.get_graph().is_some());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn missing_file_is_an_error() {
+        let mut lang = Lang::new();
+        assert!(lang.parse_file("/nonexistent/grammar.g4").is_err());
     }
 }

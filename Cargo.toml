@@ -1,10 +1,17 @@
 [package]
 name = "resrap-rs"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
-description = "A rule based code generator"
+rust-version = "1.85"
+description = "Seedable, grammar-based code and text generation"
 license = "MIT"
 repository = "https://github.com/osdc/resrap-rs"
+documentation = "https://docs.rs/resrap-rs"
 readme = "README.md"
-keywords = ["parser", "graph", "prng"]
-categories = ["compilers"]
+keywords = ["codegen", "grammar", "abnf", "parser", "prng"]
+categories = ["compilers", "development-tools", "text-processing"]
+
+[[bench]]
+name = "generation"
+harness = false
+test = false

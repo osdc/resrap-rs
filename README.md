@@ -1,138 +1,325 @@
-# Resrap
+# Resrap for Rust
+
+[![Crates.io](https://img.shields.io/crates/v/resrap-rs.svg)](https://crates.io/crates/resrap-rs)
+[![Rust Docs](https://img.shields.io/badge/docs.rs-resrap--rs-orange?logo=rust&logoColor=white)](https://docs.rs/resrap-rs)
+[![CI](https://github.com/osdc/resrap-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/osdc/resrap-rs/actions/workflows/ci.yml)
 [![Landing](https://img.shields.io/badge/docs-resrap.osdc.dev-blue)](https://resrap.osdc.dev)
-[![Rust Docs](https://img.shields.io/badge/docs.rs-resrap--rs-orange?logo=rust&logoColor=white)](https://docs.rs/resrap-rs/latest/resrap_rs/struct.Resrap.html)
 
 *Just a parser… in reverse.*
 
----
+Resrap is a **seedable, grammar-based code and text generator**. Instead of
+parsing source code, it walks a grammar graph in reverse and emits source that
+follows the grammar's structure. It is a Rust port of
+[`github.com/osdc/resrap`](https://github.com/osdc/resrap) and is designed to
+be API- and behaviour-compatible with the Go package, including **identical
+seeded output**.
 
-## What is Resrap?
+Use it for:
 
-Resrap is a **seedable, grammar-based code snippet generator**. Instead of parsing code, it **generates code** from formal grammars — producing endless, realistic-looking (or hilariously nonsensical) snippets.
+- realistic test fixtures and parser/highlighter stress tests
+- typing practice with generated code
+- fuzzing and property testing
+- procedural content generation
+- multi-file sample project generation
 
-It works with **any language** that can be described with a grammar (even English if you like!) and is perfect for:
-
-* Typing practice with realistic-looking snippets
-* Stress-testing parsers, syntax highlighters, or linters
-* Fun exploration of procedural code generation
-
-Resrap now also supports **probabilistic and infinitely repeatable grammars** via the **ABNF (Awesome BNF) format** — see `docs/ABNF.md` for full reference.
-
----
-
-## How?
-
-Resrap reads a grammar and builds a **graph of expansions**. It then randomly traverses the graph (or deterministically with a seed) to produce snippets that:
-
-* Follow the grammar’s syntax rules
-* Look structurally like real code
-* Include probabilities for weighted choices (`<0.2>`)
-* Support infinite loops via the `^` operator
-
-**Example grammar snippet (simplified C):**
-
-```abnf
-program : (header+<0.4>) function^;
-header:'#include<'identifier'.h>\n';
-function:functionheader'{''\n'functioncontent'}';
-functionheader:datatype ' ' identifier '(' ')' ;
-...
-...
-````
-
----
-
-## Generated code example
-
-```c
-#include<success.h>
-#include<email.h>
-double class(){
-while(variable < query && password < variable){
-int result = variable + (user / hello);
-}
-}double user(){
-if(class > user && result < class){
-float password = 1024.13 - (13.7);
-}
-}double hello(
-```
-
----
+The crate has **no runtime dependencies**.
 
 ## Installation
 
 ```bash
-go get github.com/ItsArnavSh/Resrap@v0.1.0
+cargo add resrap-rs
 ```
 
----
+Or add it to `Cargo.toml`:
 
-## Usage
-
-```golang
-
-	//Resrap with Single threaded
-	rs := resrap.NewResrap()
-	err := rs.ParseGrammarFile("C", "example/C.g4")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	code := rs.GenerateRandom("C", "program", 10)
-	fmt.Println(code)
-
-	//Lets get a multithreaded API set up quick
-	r := resrap.NewResrapMT(20, 1000) //20 worker pool and 1000 wait queue max size
-	err = r.ParseGrammarFile("C", "example/C.g4")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	//Receive from this
-	r.StartResrap()
-	defer r.ShutDownResrap()
-	codeChan := r.GetCodeChannel()
-	id := "12321"
-	r.GenerateRandom(id, "C", "program", 10)
-	res := <-codeChan
-	fmt.Println(res.Code)
+```toml
+[dependencies]
+resrap-rs = "0.2"
 ```
 
-### Notes
+The minimum supported Rust version is **1.85** (Rust 2024 edition).
 
-* **IDs:** You must create unique IDs for each job; results are returned with the ID.
-* **CodeChannel:** A **blocking, unbounded channel** — handle results yourself.
-* **Why multithreaded?** Efficiently handles **many concurrent jobs**, fully utilizing CPU cores while keeping grammar graphs immutable and lock-free.
+## Quick start
 
-> For benchmarks and performance comparisons, see [benchmark-results/Multithreading.md](benchmark-results/Multithreading.md).
+```rust
+use resrap_rs::{templates, Resrap};
 
----
+fn main() -> Result<(), String> {
+    let mut resrap = Resrap::new();
 
-## Roadmap
+    // Ten grammars are embedded in the crate.
+    templates::load(&mut resrap, templates::Lang::C)?;
 
-* Maintain generation sessions (e.g., generate snippets in chunks)
-* Dynamic worker scaling and idle worker shutdown
+    // Random output.
+    println!("{}", resrap.generate_random("c", "program", 200));
 
----
+    // Deterministic output: the same seed always produces the same bytes.
+    println!("{}", resrap.generate_with_seeded("c", "program", 7, 200));
 
-## Motivation
+    // Finish the starting rule instead of cutting a statement in half.
+    println!("{}", resrap.generate_complete_with_seeded("c", "program", 7, 500));
 
-Resrap was created to:
+    Ok(())
+}
+```
 
-* Generate **unlimited, realistic code snippets**
-* Avoid copyright issues from using real code
-* Provide a **fun, deterministic, and probabilistic code generator**
-* Give programmers a playground for **syntax, speed, and randomness**
+A grammar can also be loaded from a string or a file:
 
-“Just a parser… in reverse.”
+```rust
+use resrap_rs::Resrap;
+fn demo() -> Result<(), String> {
+let mut resrap = Resrap::new();
+resrap.parse_grammar("Greeting", "program:'hello ' [a-z] '!';")?;
+resrap.parse_grammar_file("C", "grammars/c.g4")?;
+Ok(())
+}
+```
 
----
+Unknown grammar names and unknown start rules return an empty string, matching
+the Go implementation.
 
-## ABNF (Awesome BNF)
+## Embedded templates
 
-* `^` → Infinite generation (loops nodes without halting)
-* `<prob>` → Weighted probabilities for branching
-* Compatible with standard EBNF operators: `+`, `*`, `?`, `()`
+The following grammars are compiled into the binary:
 
-See [docs/ABNF.md](docs/ABNF.md) for full syntax and examples.
+| Name       | Language   | Template value        |
+| ---------- | ---------- | --------------------- |
+| `c`        | C          | `templates::Lang::C`  |
+| `cpp`      | C++        | `templates::Lang::Cpp` |
+| `go`       | Go         | `templates::Lang::Go` |
+| `haskell`  | Haskell    | `templates::Lang::Haskell` |
+| `html`     | HTML       | `templates::Lang::Html` |
+| `java`     | Java       | `templates::Lang::Java` |
+| `js`       | JavaScript | `templates::Lang::JavaScript` |
+| `python`   | Python     | `templates::Lang::Python` |
+| `rust`     | Rust       | `templates::Lang::Rust` |
+| `sql`      | SQL        | `templates::Lang::Sql` |
+
+```rust
+use resrap_rs::{templates, Resrap};
+fn demo() -> Result<(), String> {
+let mut resrap = Resrap::new();
+templates::load(&mut resrap, "cpp")?;          // by short name
+templates::load(&mut resrap, templates::Lang::Python)?;
+templates::load_as(&mut resrap, "sql", "queries")?; // custom grammar name
+Ok(())
+}
+```
+
+`templates::names()`, `templates::langs()`, `templates::list()` and
+`templates::get()` expose the same data for pickers and tooling.
+
+## Generation modes
+
+All generation methods take a grammar name, a start rule and a token budget.
+
+| Method | Deterministic | Stops at rule boundary |
+| ------ | ------------- | ---------------------- |
+| `generate_random` | No | No |
+| `generate_with_seeded` | Yes | No |
+| `generate_complete` | No | Yes |
+| `generate_complete_with_seeded` | Yes | Yes |
+
+A seed of `0` means "choose a random seed", exactly as in the Go package. For a
+deterministic result, use any non-zero seed. `generate_with_seed` is provided as
+an alias for `generate_with_seeded`.
+
+The normal methods stop exactly at the token budget, so output can end in the
+middle of an expression. The `complete` variants treat the budget as a soft
+limit and stop when the starting rule reaches its end node, producing output
+that is usually syntactically complete.
+
+## Grammar format
+
+Resrap uses **ABNF (Awesome BNF)**, a small EBNF dialect with weighted choices
+and infinite loops:
+
+```abnf
+// A tiny C-like grammar.
+program : (header+<0.4>) function^;
+header  : '#include <' identifier '.h>\n';
+function: datatype ' ' identifier '(' ')' '{' '\n' statement* '}';
+statement: identifier ' = ' [0-9]+ ';\n';
+
+@words identifier = count, total, index, value
+@words datatype   = int, long, double
+```
+
+Key features:
+
+- **Sequences and rules:** `name : ... ;`
+- **Standard repetition:** `+`, `*`, `?`, and grouping with `()`
+- **Infinite generation:** `^` loops the preceding construct
+- **Weighted choices:** `<0.2>` after a branch or repetition
+- **Word lists:** `@words` / `@keywords` (see below)
+- **Comments and escapes:** `//`, `#`, `\n`, `\t`, `\\`, `\'`, `\"`
+- **Character classes and ranges:** `[a-z0-9_]`
+
+See [docs/ABNF.md](docs/ABNF.md) for the complete language reference.
+
+## Word lists
+
+Word lists replace a rule's expansion with a readable token. They can be
+declared in the grammar:
+
+```abnf
+@words identifier = count, total, index, value, result
+@keywords datatype = int, long, double
+
+program: datatype ' ' identifier ';\n';
+```
+
+or attached at runtime:
+
+```rust
+use resrap_rs::Resrap;
+fn demo() -> Result<(), String> {
+let mut resrap = Resrap::new();
+resrap.parse_grammar("C", "program:identifier;\nidentifier:[a-z];")?;
+resrap.add_words("C", "identifier", &["count".into(), "total".into()])?;
+resrap.add_keywords("C", "identifier", &["index".into()])?; // alias
+Ok(())
+}
+```
+
+`@keywords` and `add_keywords` are aliases for `@words` and `add_words`.
+Word lists apply to every reference to the rule, including the starting rule.
+
+## Codebase generation
+
+A small DSL describes a directory tree and the files to generate:
+
+```dsl
+src/
+  code/
+    c[10x200 code_*.c]
+    core/
+      c[5x1000 *.c]
+  more/
+    sql[10x100 *.sql]
+```
+
+`c[10x200 code_*.c]` means: use the grammar named `c`, generate **10** files
+with **200** tokens each, named `code_1.c`, `code_2.c`, and so on. Files are
+generated with `generate_complete`, so each file ends at a rule boundary.
+
+```rust
+use resrap_rs::{templates, Resrap};
+
+fn main() -> Result<(), String> {
+    let mut resrap = Resrap::new();
+    templates::load(&mut resrap, templates::Lang::C)?;
+    templates::load(&mut resrap, templates::Lang::Sql)?;
+
+    resrap.generate_codebase("project.dsl", "output/")?;
+    Ok(())
+}
+```
+
+The DSL can also be parsed and inspected without writing anything:
+
+```rust
+use resrap_rs::parse_dsl;
+fn demo() -> Result<(), String> {
+let root = parse_dsl("src/\n  c[2x100 hello_*.c]\n")?;
+assert_eq!(root.children.len(), 1);
+Ok(())
+}
+```
+
+See [docs/Codebase_gen.md](docs/Codebase_gen.md) for details.
+
+## Multithreaded generation
+
+`ResrapMT` runs a worker pool over an immutable grammar graph:
+
+```rust
+use resrap_rs::{templates, ResrapMT};
+
+fn main() -> Result<(), String> {
+    let mut resrap = ResrapMT::new(8, 4096); // workers, pending-job queue size
+    templates::load(&mut resrap, templates::Lang::C)?;
+    resrap.start_resrap();
+
+    let channel = resrap.get_code_channel();
+    for id in 0..100u64 {
+        resrap.generate_with_seeded(
+            &format!("job-{id}"),
+            "c",
+            "program",
+            id + 1,
+            200,
+        )?;
+    }
+
+    for _ in 0..100 {
+        let result = channel.recv().map_err(|err| err.to_string())?;
+        println!("{}: {} bytes", result.id, result.code.len());
+    }
+
+    resrap.shutdown_resrap();
+    Ok(())
+}
+```
+
+Each job returns a `CodeGenRes { code, id }`. IDs are caller-supplied and must
+be unique if you need to map results back to requests. Generation results are
+buffered in an unbounded dispatcher, so workers never block on a slow result
+consumer. Submitting after shutdown returns `ERR_SHUT_DOWN`.
+
+See [docs/ResrapMT.md](docs/ResrapMT.md) for the full API.
+
+## Go seed parity
+
+Seeded generation is tested **byte-for-byte** against the Go reference package.
+`tests/data/go_parity_data.rs` contains outputs generated by Go for:
+
+- inline grammars exercising probabilities, words, escapes, regex classes,
+  infinite loops and complete-mode boundaries
+- all ten embedded templates at seeds 1, 7 and 42
+
+The integration test in `tests/go_parity.rs` regenerates the same output with
+Rust and compares it exactly. This includes reference quirks such as `*`
+consuming two probability values, so output stays compatible rather than merely
+similar.
+
+## Benchmarks
+
+Measured with `cargo bench --bench generation` on the development machine used
+for this release (release profile, 8 logical cores). Numbers are indicative;
+run the benchmark on your own hardware for comparable figures.
+
+| Benchmark | Rust | Go reference |
+| --------- | ---: | -----------: |
+| Parse embedded C template | 0.158 ms/iter (6,324 ops/s) | 0.139 ms/iter (7,197 ops/s) |
+| Seeded generation, 200 tokens | 0.028 ms/iter (35,875 ops/s) | 0.028 ms/iter (36,332 ops/s) |
+| Complete generation, 500 tokens | 0.070 ms/iter (14,206 ops/s) | 0.066 ms/iter (15,255 ops/s) |
+| Random generation, 200 tokens | 0.028 ms/iter (35,426 ops/s) | 0.025 ms/iter (39,903 ops/s) |
+| Generation throughput | 148 MB/s (4,368 B/output) | 175 MB/s (4,368 B/output) |
+| Worker pool (8), 200 tokens | 50,249 jobs/s | 108,352 jobs/s |
+| Worker pool (8), complete 500 | 17,195 jobs/s | 38,396 jobs/s |
+
+The benchmark harness is dependency-free and lives in
+[`benches/generation.rs`](benches/generation.rs).
+
+## Documentation
+
+- [ABNF grammar reference](docs/ABNF.md)
+- [Single-threaded API](docs/Resrap.md)
+- [Multithreaded API](docs/ResrapMT.md)
+- [Codebase generation](docs/Codebase_gen.md)
+- [API documentation on docs.rs](https://docs.rs/resrap-rs)
+
+## Development
+
+```bash
+cargo fmt --all --check
+cargo clippy --all-targets -- -D warnings
+cargo test
+cargo bench --bench generation
+cargo doc --no-deps
+```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

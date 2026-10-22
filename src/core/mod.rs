@@ -1,8 +1,9 @@
+pub mod codebasegen;
 pub mod file;
 pub mod frozen_graph;
-mod graph;
-mod graph_builder;
-mod parser;
+pub mod graph;
+pub mod graph_builder;
+pub mod parser;
 pub mod prng;
-mod regex;
-mod scanner;
+pub mod regex;
+pub mod scanner;
