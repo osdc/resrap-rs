@@ -14,17 +14,21 @@ pub struct PRNG {
 impl PRNG {
     pub fn new(seed: u64) -> Self {
         let mut prng = PRNG { seed: 0, number: 0 };
-        if seed == 0 {
-            prng.generate_seed();
-        } else {
-            prng.set_seed(seed);
-        }
+        prng.set_seed(seed);
         prng
     }
 
+    /// Sets the generator state. A seed of `0` selects a random seed, matching
+    /// the Go reference implementation. Handling zero here (rather than only
+    /// in [`PRNG::new`]) keeps the xorshift state from getting stuck at zero if
+    /// the setter is used directly.
     pub fn set_seed(&mut self, seed: u64) {
-        self.number = seed;
-        self.seed = seed;
+        if seed == 0 {
+            self.set_random_seed();
+        } else {
+            self.number = seed;
+            self.seed = seed;
+        }
     }
 
     #[cfg(test)]
@@ -32,19 +36,23 @@ impl PRNG {
         self.seed
     }
 
-    fn generate_seed(&mut self) {
-        // No external rand crate: mix the wall clock with an address-like
-        // value so two instances created in quick succession still differ.
+    fn set_random_seed(&mut self) {
+        // No external rand crate: mix the wall clock with a monotonic counter
+        // so two instances created in quick succession still differ.
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_nanos() as u64)
             .unwrap_or(0);
         let counter = SEED_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let mut seed = nanos ^ counter.wrapping_mul(0x9E37_79B9_7F4A_7C15);
-        if seed == 0 {
-            seed = 0xDEAD_BEEF_CAFE_F00D;
-        }
-        self.set_seed(seed);
+        let seed = nanos ^ counter.wrapping_mul(0x9E37_79B9_7F4A_7C15);
+        // xorshift is stuck at zero, so never store a zero state.
+        let seed = if seed == 0 {
+            0xDEAD_BEEF_CAFE_F00D
+        } else {
+            seed
+        };
+        self.number = seed;
+        self.seed = seed;
     }
 
     pub fn next_prn(&mut self) -> u64 {
@@ -93,6 +101,15 @@ mod tests {
         assert_ne!(a.seed(), 0);
         let b = PRNG::new(0);
         assert_ne!(b.seed(), 0);
+    }
+
+    #[test]
+    fn set_seed_zero_is_randomised() {
+        let mut p = PRNG::new(7);
+        p.set_seed(0);
+        assert_ne!(p.seed(), 0);
+        // A non-zero xorshift state can never step to zero.
+        assert_ne!(p.next_prn(), 0);
     }
 
     #[test]

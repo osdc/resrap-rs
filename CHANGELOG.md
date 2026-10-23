@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-10-23
+
+### Fixed
+
+- Seed `0` now reliably selects a random seed everywhere instead of being
+  written into the xorshift state, where it would stay stuck at zero and
+  generate empty or degenerate output. Zero-seed handling moved into the PRNG
+  setter so it also covers direct state updates, not just `PRNG::new(0)`, and
+  regression tests now cover both paths.
+- Documented the zero-seed behaviour on the seeded generation methods.
+
 ## [1.0.0] - 2026-10-22
 
 ### Added

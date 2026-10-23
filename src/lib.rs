@@ -85,6 +85,9 @@ impl Resrap {
     }
 
     /// Deterministic variant of [`Resrap::generate_random`].
+    ///
+    /// A seed of `0` is not deterministic: it selects a fresh random seed for
+    /// this call, matching the Go reference implementation.
     pub fn generate_with_seeded(
         &self,
         name: &str,
@@ -114,6 +117,9 @@ impl Resrap {
     }
 
     /// Deterministic variant of [`Resrap::generate_complete`].
+    ///
+    /// A seed of `0` is not deterministic: it selects a fresh random seed for
+    /// this call, matching the Go reference implementation.
     pub fn generate_complete_with_seeded(
         &self,
         name: &str,

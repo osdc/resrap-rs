@@ -228,6 +228,9 @@ impl ResrapMT {
         self.submit_job(id, name, starting_node, 0, tokens, false)
     }
 
+    /// Deterministic variant of [`ResrapMT::generate_random`].
+    ///
+    /// A seed of `0` selects a fresh random seed for the job.
     pub fn generate_with_seeded(
         &self,
         id: &str,
@@ -249,6 +252,9 @@ impl ResrapMT {
         self.submit_job(id, name, starting_node, 0, tokens, true)
     }
 
+    /// Deterministic complete variant of [`ResrapMT::generate_complete`].
+    ///
+    /// A seed of `0` selects a fresh random seed for the job.
     pub fn generate_complete_with_seeded(
         &self,
         id: &str,
